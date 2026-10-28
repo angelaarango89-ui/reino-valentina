@@ -1,0 +1,16 @@
+{
+  "name": "El Reino de Valentina",
+  "short_name": "Valentina",
+  "description": "Juegos para aprender con Luna, Estrella y Mimi",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFE3F1",
+  "theme_color": "#FFE3F1",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
