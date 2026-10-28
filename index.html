@@ -251,7 +251,14 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 #playBack{display:block;margin:14px auto 0}
 .dress{background:var(--card);border-radius:24px;padding:12px;margin-top:16px;box-shadow:0 6px 0 var(--line);display:grid;gap:10px}
 .dress-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.swatch{width:54px;height:54px;border-radius:50%;font-size:1.7rem;display:grid;place-items:center;background:var(--soft);border:3px solid var(--line)}
+.dress-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:2px 2px 8px}
+.dress-tabs::-webkit-scrollbar{display:none}
+.dtab{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:72px;padding:6px 8px;border-radius:16px;background:var(--soft);font-weight:900;font-size:.75rem;color:var(--ink-soft);border:3px solid transparent}
+.dtab b{font-size:1.5rem;line-height:1.1}
+.dtab.on{background:#FFE3F1;border-color:var(--rose);color:var(--ink)}
+.swatch.none{font-size:1.3rem;opacity:.75}
+#surpriseBtn{font-size:1.1rem;padding:11px}
+.swatch{width:58px;height:58px;border-radius:50%;font-size:1.7rem;display:grid;place-items:center;background:var(--soft);border:3px solid var(--line)}
 .swatch.on{border-color:var(--rose);background:#FFE3F1;box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose)}
 .swatch.fur{background:linear-gradient(135deg,var(--sw) 0 60%,var(--sw2) 60%)}
 .room-note{font-size:.85rem;font-weight:800;color:var(--ink-soft);text-align:center;margin:14px auto 0;max-width:470px;line-height:1.45}
@@ -355,8 +362,9 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
       <button class="big-btn" id="dressBtn" style="--c:var(--mint);--cd:var(--mint-d)"><b>👗</b>Vestir</button>
     </div>
     <div class="dress" id="dress" hidden>
-      <div class="dress-row" id="accRow"></div>
-      <div class="dress-row" id="furRow"></div>
+      <div class="dress-tabs" id="dressTabs"></div>
+      <div class="dress-row" id="dressItems"></div>
+      <button class="btn gold" id="surpriseBtn">🎲 ¡Sorpréndeme!</button>
     </div>
     <p class="room-note" id="roomNote"></p>
     <p class="room-note">Toca a Mimi en la cabeza, la barriga, la cola o el cascabel: cada parte reacciona distinto.</p>
@@ -509,20 +517,107 @@ const MIMI_BIG = `<svg viewBox="0 -40 240 330" aria-hidden="true">
   <g class="tail"><path d="M168 250 C224 252 238 200 216 166 C206 148 186 152 192 168" fill="none" stroke="${INK}" stroke-width="27" stroke-linecap="round"/>
     <path d="M168 250 C224 252 238 200 216 166 C206 148 186 152 192 168" fill="none" style="stroke:var(--fur)" stroke-width="19" stroke-linecap="round"/>
     <path d="M226 210 l-14 -2 M224 188 l-13 4 M214 168 l-10 8" style="stroke:var(--stripe)" stroke-width="6" stroke-linecap="round"/></g>
+  <g class="slot-back"></g>
   <g id="mBody">
     <path d="M120 150 C164 150 184 192 182 232 C180 264 158 276 120 276 C82 276 60 264 58 232 C56 192 76 150 120 150 Z" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/>
     <ellipse cx="120" cy="232" rx="35" ry="37" ${sf(VARF.belly)}/>
+    <g class="slot-outfit"></g>
     <ellipse cx="93" cy="276" rx="23" ry="12" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="147" cy="276" rx="23" ry="12" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/>
     <g fill="#FF9CCB"><circle cx="85" cy="274" r="3.2"/><circle cx="93" cy="270" r="3.2"/><circle cx="101" cy="274" r="3.2"/><circle cx="139" cy="274" r="3.2"/><circle cx="147" cy="270" r="3.2"/><circle cx="155" cy="274" r="3.2"/></g>
-    <path d="M84 172 Q120 192 156 172" fill="none" stroke="#FF4FA0" stroke-width="10" stroke-linecap="round"/>
-    <g class="bell"><circle cx="120" cy="188" r="9" fill="#FFC22E" stroke="${INK}" stroke-width="2.5"/><path d="M114 188 h12" stroke="${INK}" stroke-width="2"/><circle cx="120" cy="193" r="1.8" fill="${INK}"/></g>
+    <g class="slot-neck"></g>
   </g>
   <g id="mPawL"><g transform="rotate(24 72 214)"><ellipse cx="72" cy="214" rx="15" ry="30" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="72" cy="236" rx="7" ry="5" fill="#FF9CCB"/></g></g>
-  <g id="mPawR"><g transform="rotate(-24 168 214)"><ellipse cx="168" cy="214" rx="15" ry="30" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="168" cy="236" rx="7" ry="5" fill="#FF9CCB"/></g></g>
+  <g id="mPawR"><g transform="rotate(-24 168 214)"><ellipse cx="168" cy="214" rx="15" ry="30" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="168" cy="236" rx="7" ry="5" fill="#FF9CCB"/><g class="slot-hand"></g></g></g>
   <g id="mHead">${kittyHead(VARF, true)}
-    ${Object.keys(ACC).map(k => `<g class="acc acc-${k}">${ACC[k]}</g>`).join('')}
+    <g class="slot-eyes"></g><g class="slot-bow"></g><g class="slot-head"></g>
   </g>
 </svg>`;
+/* Mimi's wardrobe: every item is drawn on the big Mimi's own coordinates. One item per category. */
+const K = INK;
+const star5 = (x, y, r, fill) => { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1); } return `<path d="${d}Z" fill="${fill}" stroke="${K}" stroke-width="2.2" stroke-linejoin="round"/>`; };
+const flower = (x, y, c, r = 6) => `<g transform="translate(${x} ${y})" stroke="${K}" stroke-width="1.8"><circle cy="${-r}" r="${r}" fill="${c}"/><circle cx="${r}" cy="${-r * .2}" r="${r}" fill="${c}"/><circle cx="${r * .6}" cy="${r}" r="${r}" fill="${c}"/><circle cx="${-r * .6}" cy="${r}" r="${r}" fill="${c}"/><circle cx="${-r}" cy="${-r * .2}" r="${r}" fill="${c}"/><circle r="${r * .7}" fill="#FFD84D"/></g>`;
+const emo = (e, x = 176, y = 246, s = 58) => `<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle" dominant-baseline="middle">${e}</text>`;
+const NECKLINE = 'M82 182 Q120 198 158 182';
+
+const WARDROBE = {
+  outfit: { label: 'Ropa', icon: '👗', items: {
+    princesa: { icon: '👗', name: 'Princesa', svg: `<circle cx="82" cy="192" r="13" fill="#FF8CC6" stroke="${K}" stroke-width="3"/><circle cx="158" cy="192" r="13" fill="#FF8CC6" stroke="${K}" stroke-width="3"/>
+      <path d="M80 184 Q120 200 160 184 L166 216 Q120 226 74 216 Z" fill="#FF4FA0" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M74 214 Q120 226 166 214 L190 260 Q154 274 120 272 Q86 274 50 260 Z" fill="#FF9CCB" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M58 258 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+      <path d="M74 215 Q120 228 166 215" fill="none" stroke="#FFC22E" stroke-width="6"/>
+      <g fill="#fff"><circle cx="96" cy="238" r="3"/><circle cx="142" cy="242" r="3"/><circle cx="118" cy="252" r="2.5"/><circle cx="162" cy="234" r="2.5"/><circle cx="80" cy="246" r="2.5"/></g>${star5(120, 200, 7, '#FFE27A')}` },
+    bailarina: { icon: '🩰', name: 'Bailarina', svg: `<path d="M84 182 Q120 198 156 182 L164 228 Q120 238 76 228 Z" fill="#D9C4FF" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M62 222 L46 246 L66 240 L62 258 L82 244 L84 262 L100 246 L108 264 L120 248 L132 264 L140 246 L156 262 L158 244 L178 258 L174 240 L194 246 L178 222 Q120 238 62 222Z" fill="#FFB8E6" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M70 226 L62 240 L78 236 L80 250 L96 238 L104 252 L120 240 L136 252 L144 238 L160 250 L162 236 L178 240 L170 226 Q120 240 70 226Z" fill="#FFD6F1"/>${flower(120, 206, '#FF6F91', 5)}` },
+    heroina: { icon: '🦸', name: 'Superheroína', back: `<path d="M84 178 Q26 238 40 286 L200 286 Q214 238 156 178 Z" fill="#FF5C7A" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>`,
+      svg: `<path d="M82 182 Q120 198 158 182 L168 236 Q120 248 72 236 Z" fill="#5BB8F5" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+      <path d="M72 232 Q120 246 168 232" fill="none" stroke="#FFC22E" stroke-width="7"/>${star5(120, 212, 15, '#FFC22E')}
+      <circle cx="86" cy="186" r="6" fill="#FFC22E" stroke="${K}" stroke-width="2"/><circle cx="154" cy="186" r="6" fill="#FFC22E" stroke="${K}" stroke-width="2"/>` },
+    hada: { icon: '🧚', name: 'Hada', back: `<g stroke="${K}" stroke-width="3" fill="#BFF3E4" fill-opacity=".9"><ellipse cx="60" cy="182" rx="38" ry="24" transform="rotate(-32 60 182)"/><ellipse cx="180" cy="182" rx="38" ry="24" transform="rotate(32 180 182)"/><ellipse cx="62" cy="228" rx="26" ry="16" transform="rotate(22 62 228)"/><ellipse cx="178" cy="228" rx="26" ry="16" transform="rotate(-22 178 228)"/></g>
+      <g fill="#fff"><circle cx="50" cy="176" r="3"/><circle cx="190" cy="176" r="3"/><circle cx="64" cy="226" r="2.5"/><circle cx="176" cy="226" r="2.5"/></g>`,
+      svg: `<path d="M84 182 Q120 198 156 182 L178 252 L164 246 L158 264 L144 252 L132 268 L120 254 L108 268 L96 252 L82 264 L76 246 L62 252 Z" fill="#6FE0C6" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
+      <g fill="#fff"><circle cx="100" cy="222" r="3"/><circle cx="138" cy="230" r="3"/><circle cx="120" cy="244" r="2.5"/></g>${flower(120, 200, '#FF9CCB', 5)}` },
+    pijama: { icon: '🌙', name: 'Pijama', svg: `<path d="M80 182 Q120 198 160 182 Q184 210 182 240 Q180 270 120 272 Q60 270 58 240 Q56 210 80 182Z" fill="#9EC9FF" stroke="${K}" stroke-width="3.5"/>
+      ${star5(88, 214, 7, '#FFE27A')}${star5(152, 224, 7, '#FFE27A')}${star5(98, 252, 6, '#FFE27A')}${star5(146, 256, 6, '#FFE27A')}
+      <path d="M150 200 a10 10 0 1 0 8 16 a8 8 0 1 1 -8 -16z" fill="#FFF6C9" stroke="${K}" stroke-width="2"/>
+      <g fill="#fff" stroke="${K}" stroke-width="1.5"><circle cx="120" cy="208" r="3.5"/><circle cx="120" cy="226" r="3.5"/><circle cx="120" cy="244" r="3.5"/></g>` },
+    overol: { icon: '👖', name: 'Overol', svg: `<path d="M98 196 L90 178 M142 196 L150 178" stroke="#4E86D6" stroke-width="8" stroke-linecap="round"/>
+      <path d="M94 194 h52 v34 h-52z" fill="#4E86D6" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M62 226 Q120 238 178 226 Q184 264 120 270 Q56 264 62 226Z" fill="#4E86D6" stroke="${K}" stroke-width="3.5"/>
+      <rect x="108" y="204" width="24" height="16" rx="3" fill="#6FA0E8" stroke="${K}" stroke-width="2"/><path d="M114 210 h12" stroke="#FFC22E" stroke-width="2"/>
+      <circle cx="98" cy="198" r="4" fill="#FFC22E" stroke="${K}" stroke-width="1.5"/><circle cx="142" cy="198" r="4" fill="#FFC22E" stroke="${K}" stroke-width="1.5"/>
+      <path d="M120 238 v26" stroke="#6FA0E8" stroke-width="3"/>` },
+    impermeable: { icon: '☔', name: 'Impermeable', svg: `<path d="M78 180 Q120 196 162 180 Q188 216 186 264 Q120 280 54 264 Q52 216 78 180Z" fill="#FFD84D" stroke="${K}" stroke-width="3.5"/>
+      <path d="M120 194 V272" stroke="${K}" stroke-width="2.5"/><path d="M82 182 L104 204 L118 190 M158 182 L136 204 L122 190" fill="#FFE98A" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
+      <g fill="${K}"><circle cx="112" cy="216" r="3"/><circle cx="112" cy="236" r="3"/><circle cx="112" cy="256" r="3"/></g>
+      <path d="M78 236 h20 v14 h-20z M142 236 h20 v14 h-20z" fill="#FFE98A" stroke="${K}" stroke-width="2.2"/>` },
+    sueter: { icon: '🧶', name: 'Suéter', svg: `<path d="M80 182 Q120 196 160 182 Q182 206 180 238 Q120 252 60 238 Q58 206 80 182Z" fill="#FF8CC6" stroke="${K}" stroke-width="3.5"/>
+      <path d="M62 230 Q120 244 178 230" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="4 4"/>
+      <path d="M120 226 C104 214 106 200 120 208 C134 200 136 214 120 226Z" fill="#FF4FA0" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M86 198 l4 6 4 -6 M146 198 l4 6 4 -6" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>` }
+  } },
+  head: { label: 'Cabeza', icon: '👑', items: {
+    corona: { icon: '👑', name: 'Corona', svg: ACC.crown },
+    flores: { icon: '🌸', name: 'Flores', svg: ACC.flower },
+    fiesta: { icon: '🥳', name: 'Fiesta', svg: ACC.hat },
+    tiara: { icon: '⭐', name: 'Tiara', svg: `<path d="M62 68 Q120 34 178 68" fill="none" stroke="#FFC22E" stroke-width="7" stroke-linecap="round"/><path d="M62 68 Q120 34 178 68" fill="none" stroke="${K}" stroke-width="1.5" stroke-dasharray="1 9"/>${star5(120, 34, 16, '#FFE27A')}<circle cx="86" cy="52" r="4" fill="#FF6F91" stroke="${K}" stroke-width="1.5"/><circle cx="154" cy="52" r="4" fill="#62B6FF" stroke="${K}" stroke-width="1.5"/>` },
+    mago: { icon: '🧙', name: 'Mago', svg: `<ellipse cx="120" cy="60" rx="74" ry="13" fill="#7C4FE0" stroke="${K}" stroke-width="3.5"/><path d="M76 60 L124 -34 L164 60 Z" fill="#7C4FE0" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>${star5(116, 10, 7, '#FFE27A')}${star5(136, 36, 6, '#FFE27A')}${star5(104, 42, 5, '#FFE27A')}<path d="M80 54 Q122 66 160 54" fill="none" stroke="#FFC22E" stroke-width="5"/>` },
+    conejo: { icon: '🐰', name: 'Orejas de conejo', svg: `<g stroke="${K}" stroke-width="3.5"><ellipse cx="96" cy="2" rx="14" ry="40" fill="#fff" transform="rotate(-14 96 2)"/><ellipse cx="144" cy="2" rx="14" ry="40" fill="#fff" transform="rotate(14 144 2)"/></g><ellipse cx="96" cy="6" rx="6" ry="28" fill="#FFB8DA" transform="rotate(-14 96 6)"/><ellipse cx="144" cy="6" rx="6" ry="28" fill="#FFB8DA" transform="rotate(14 144 6)"/><path d="M70 58 Q120 30 170 58" fill="none" stroke="#FF8CC6" stroke-width="8" stroke-linecap="round"/>` },
+    gorro: { icon: '🧢', name: 'Gorro de lana', svg: `<path d="M56 72 Q58 20 120 18 Q182 20 184 72 Z" fill="#FF6F91" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/><path d="M90 26 V66 M120 20 V66 M150 26 V66" stroke="#FF9CB4" stroke-width="5"/><rect x="50" y="62" width="140" height="17" rx="8.5" fill="#fff" stroke="${K}" stroke-width="3"/><circle cx="120" cy="14" r="13" fill="#fff" stroke="${K}" stroke-width="3"/>` },
+    cuerno: { icon: '🦄', name: 'Cuerno de unicornio', svg: `<path d="M64 66 Q120 40 176 66" fill="none" stroke="#B48CFF" stroke-width="8" stroke-linecap="round"/><path d="M120 -10 L106 44 L134 44 Z" fill="#FFC22E" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M110 30 L130 24 M113 16 L127 11" stroke="${K}" stroke-width="2"/>${flower(90, 52, '#FF9CCB', 5)}${flower(150, 52, '#62B6FF', 5)}` }
+  } },
+  bow: { label: 'Moño', icon: '🎀', items: {
+    rosa: { color: '#FF4FA0', name: 'Rosa' }, lila: { color: '#A77BFF', name: 'Lila' }, menta: { color: '#2FC4A4', name: 'Menta' },
+    sol: { color: '#FFC22E', name: 'Amarillo' }, cielo: { color: '#5BB8F5', name: 'Azul' }, coral: { color: '#FF8A6B', name: 'Coral' }
+  } },
+  eyes: { label: 'Ojos', icon: '🕶️', items: {
+    corazones: { icon: '💗', name: 'Gafas de corazón', svg: ACC.glasses },
+    redondas: { icon: '👓', name: 'Gafas redondas', svg: `<g fill="#ffffff22" stroke="${K}" stroke-width="4.5"><circle cx="86" cy="112" r="25"/><circle cx="154" cy="112" r="25"/></g><path d="M111 108 Q120 102 129 108" fill="none" stroke="${K}" stroke-width="4.5"/>` },
+    estrellas: { icon: '🌟', name: 'Gafas de estrella', svg: `<g opacity=".92">${star5(86, 112, 28, '#FFC22E')}${star5(154, 112, 28, '#FFC22E')}</g><path d="M108 104 Q120 98 132 104" fill="none" stroke="${K}" stroke-width="3.5"/>` },
+    antifaz: { icon: '🎭', name: 'Antifaz', svg: `<path d="M52 100 Q86 82 120 98 Q154 82 188 100 Q190 128 154 130 Q132 128 120 118 Q108 128 86 130 Q50 128 52 100Z M70 112 a16 18 0 1 0 32 0 a16 18 0 1 0 -32 0Z M138 112 a16 18 0 1 0 32 0 a16 18 0 1 0 -32 0Z" fill="#FF5C7A" fill-rule="evenodd" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>` },
+    sol: { icon: '🕶️', name: 'Gafas de sol', svg: `<g stroke="${K}" stroke-width="3"><rect x="58" y="96" width="54" height="34" rx="14" fill="#2B1A3D"/><rect x="128" y="96" width="54" height="34" rx="14" fill="#2B1A3D"/></g><path d="M112 106 h16" stroke="${K}" stroke-width="4"/><path d="M68 104 l10 -4 M138 104 l10 -4" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>` }
+  } },
+  neck: { label: 'Cuello', icon: '🔔', items: {
+    cascabel: { icon: '🔔', name: 'Cascabel', svg: `<path d="M84 172 Q120 192 156 172" fill="none" stroke="#FF4FA0" stroke-width="10" stroke-linecap="round"/><g class="bell"><circle cx="120" cy="188" r="9" fill="#FFC22E" stroke="${K}" stroke-width="2.5"/><path d="M114 188 h12" stroke="${K}" stroke-width="2"/><circle cx="120" cy="193" r="1.8" fill="${K}"/></g>` },
+    perlas: { icon: '⚪', name: 'Perlas', svg: `<g fill="#fff" stroke="${K}" stroke-width="1.6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => { const t = i / 10, x = (1 - t) * (1 - t) * 84 + 2 * (1 - t) * t * 120 + t * t * 156, y = (1 - t) * (1 - t) * 174 + 2 * (1 - t) * t * 196 + t * t * 174; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.2"/>`; }).join('')}</g><circle cx="120" cy="197" r="7" fill="#FFB8DA" stroke="${K}" stroke-width="2"/>` },
+    bufanda: { icon: '🧣', name: 'Bufanda', svg: `<path d="M140 186 l12 38 l-16 3 l-8 -36z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M80 168 Q120 194 160 168 L162 184 Q120 212 78 184 Z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M96 182 l-2 12 M112 186 l-1 12 M128 186 l1 12 M144 182 l2 12 M140 206 l14 -3" stroke="#fff" stroke-width="4" stroke-linecap="round"/>` },
+    corbatin: { icon: '🦋', name: 'Corbatín', svg: `<path d="M120 186 L98 174 L98 198 Z M120 186 L142 174 L142 198 Z" fill="#7C4FE0" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="120" cy="186" r="6" fill="#A77BFF" stroke="${K}" stroke-width="2"/><g fill="#fff"><circle cx="106" cy="182" r="2"/><circle cx="134" cy="190" r="2"/></g>` },
+    hawaiano: { icon: '🌺', name: 'Collar de flores', svg: [[86, 178, '#FF6F91'], [100, 188, '#FFC22E'], [114, 193, '#B48CFF'], [128, 193, '#2FC4A4'], [142, 188, '#FF8A6B'], [156, 178, '#62B6FF']].map(([x, y, c]) => flower(x, y, c, 5.5)).join('') }
+  } },
+  hand: { label: 'En la mano', icon: '🪄', items: {
+    varita: { icon: '🪄', name: 'Varita', svg: `<path d="M168 244 L200 186" stroke="${K}" stroke-width="9" stroke-linecap="round"/><path d="M168 244 L200 186" stroke="#B48CFF" stroke-width="5" stroke-linecap="round"/>${star5(202, 180, 15, '#FFE27A')}<g fill="#FFE27A"><circle cx="222" cy="168" r="3"/><circle cx="214" cy="200" r="2.5"/></g>` },
+    globo: { icon: '🎈', name: 'Globo', svg: `<path d="M168 244 Q188 180 204 124" fill="none" stroke="${K}" stroke-width="2"/><path d="M204 124 C170 100 180 62 204 80 C228 62 238 100 204 124Z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M194 82 q-6 6 -4 14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>` },
+    paleta: { icon: '🍭', name: 'Paleta', svg: emo('🍭') },
+    girasol: { icon: '🌻', name: 'Girasol', svg: emo('🌻') },
+    osito: { icon: '🧸', name: 'Osito', svg: emo('🧸') },
+    helado: { icon: '🍦', name: 'Helado', svg: emo('🍦') }
+  } }
+};
+FURS.push({ fur: '#D9AE86', fur2: '#C9976B', stripe: '#9A6640', belly: '#FFF3E6', bow: '#FF4FA0', label: 'Chocolate' },
+          { fur: '#D7EEFF', fur2: '#C0E2FF', stripe: '#8CC4F5', belly: '#FFFFFF', bow: '#FF4FA0', label: 'Celeste' });
+const DRESS_TABS = ['outfit', 'head', 'bow', 'eyes', 'neck', 'hand', 'fur'];
+
 
 /* ---------------- sound effects ---------------- */
 let ac;
@@ -941,18 +1036,44 @@ function goHome(){ stopVoice(); if (G) G.token = null; G = null; renderHome(); s
 
 /* ---------------- Mimi's room ---------------- */
 let micStream = null, rec = null, musicBus = null, talking = false, eating = false, pets = 0, tickles = 0;
-store.mimi = Object.assign({ fur: 0, acc: { bow: true } }, store.mimi || {});
+(function migrateMimi(){
+  const m = store.mimi || {}, a = m.acc || {};
+  const d = { fur: 0, outfit: null, head: null, bow: 'rosa', eyes: null, neck: 'cascabel', hand: null };
+  if (m.acc) { d.head = a.crown ? 'corona' : a.flower ? 'flores' : a.hat ? 'fiesta' : null; d.bow = a.bow ? 'rosa' : null; d.eyes = a.glasses ? 'corazones' : null; }
+  store.mimi = Object.assign(d, m); delete store.mimi.acc;
+  if (!(store.mimi.fur < FURS.length)) store.mimi.fur = 0;
+})();
+let dressTab = 'outfit';
 $('#mimiBig').innerHTML = MIMI_BIG;
 const sayMimi = k => say(k, 1.14);
 const mimiBusy = () => talking || rec || eating;
 
 function applyMimiLook(){
   const m = $('#mimiBig'), F = FURS[store.mimi.fur] || FURS[0];
-  ['fur', 'fur2', 'stripe', 'belly', 'bow'].forEach(k => m.style.setProperty('--' + k, F[k]));
-  Object.keys(ACC).forEach(k => { m.querySelector('.acc-' + k).style.display = store.mimi.acc[k] ? '' : 'none'; });
-  $('#accRow').innerHTML = [['bow', '🎀'], ['crown', '👑'], ['flower', '🌸'], ['hat', '🥳'], ['glasses', '🕶️']]
-    .map(([k, e]) => `<button class="swatch ${store.mimi.acc[k] ? 'on' : ''}" data-acc="${k}" aria-label="${k}">${e}</button>`).join('');
-  $('#furRow').innerHTML = FURS.map((f, i) => `<button class="swatch fur ${store.mimi.fur === i ? 'on' : ''}" data-fur="${i}" aria-label="Gatita ${f.label}" style="--sw:${f.fur};--sw2:${f.stripe}"></button>`).join('');
+  ['fur', 'fur2', 'stripe', 'belly'].forEach(k => m.style.setProperty('--' + k, F[k]));
+  const it = (cat) => store.mimi[cat] && WARDROBE[cat].items[store.mimi[cat]];
+  const o = it('outfit');
+  m.querySelector('.slot-back').innerHTML = (o && o.back) || '';
+  m.querySelector('.slot-outfit').innerHTML = (o && o.svg) || '';
+  ['head', 'eyes', 'neck', 'hand'].forEach(c => { const x = it(c); m.querySelector('.slot-' + c).innerHTML = x ? x.svg : ''; });
+  const b = it('bow'); m.querySelector('.slot-bow').innerHTML = b ? bowSVG({ bow: b.color }) : '';
+  renderDress();
+}
+function renderDress(){
+  $('#dressTabs').innerHTML = DRESS_TABS.map(t => {
+    const lab = t === 'fur' ? ['🎨', 'Color'] : [WARDROBE[t].icon, WARDROBE[t].label];
+    return `<button class="dtab ${t === dressTab ? 'on' : ''}" data-tab="${t}"><b>${lab[0]}</b>${lab[1]}</button>`;
+  }).join('');
+  let html = '';
+  if (dressTab === 'fur') html = FURS.map((f, i) => `<button class="swatch fur ${store.mimi.fur === i ? 'on' : ''}" data-fur="${i}" aria-label="Gatita ${f.label}" style="--sw:${f.fur};--sw2:${f.stripe}"></button>`).join('');
+  else {
+    const cat = WARDROBE[dressTab], cur = store.mimi[dressTab];
+    html = `<button class="swatch none ${!cur ? 'on' : ''}" data-cat="${dressTab}" data-item="" aria-label="Nada">🚫</button>` +
+      Object.entries(cat.items).map(([k, x]) => x.color
+        ? `<button class="swatch fur ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="Moño ${x.name}" style="--sw:${x.color};--sw2:${x.color}">🎀</button>`
+        : `<button class="swatch ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="${x.name}">${x.icon}</button>`).join('');
+  }
+  $('#dressItems').innerHTML = html;
 }
 function mimiAnim(cls, ms){ const m = $('#mimiBig'); m.classList.remove('jump', 'spin', 'wig', 'pose'); void m.getBoundingClientRect(); m.classList.add(cls); setTimeout(() => m.classList.remove(cls), ms); }
 function mood(cls, ms){ const m = $('#mimiBig'); m.classList.remove('happy', 'wow'); if (cls) m.classList.add(cls); clearTimeout(mood.t); if (ms) mood.t = setTimeout(() => m.classList.remove(cls), ms); }
@@ -1036,16 +1157,20 @@ $('#feedBtn').addEventListener('click', () => {
 /* dress-up */
 $('#dressBtn').addEventListener('click', () => { const d = $('#dress'); d.hidden = !d.hidden; sfx.tap(); if (!d.hidden) d.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
 $('#dress').addEventListener('click', e => {
-  const a = e.target.closest('[data-acc]'), f = e.target.closest('[data-fur]');
-  if (!a && !f) return;
-  if (a) {
-    const k = a.dataset.acc, on = !store.mimi.acc[k];
-    if (on && TOP_ACC.includes(k)) TOP_ACC.forEach(x => store.mimi.acc[x] = false);
-    store.mimi.acc[k] = on;
-  }
+  const tab = e.target.closest('[data-tab]');
+  if (tab) { dressTab = tab.dataset.tab; sfx.tap(); renderDress(); return; }
+  const it = e.target.closest('[data-item]'), f = e.target.closest('[data-fur]'), rnd_ = e.target.closest('#surpriseBtn');
+  if (!it && !f && !rnd_) return;
+  if (it) store.mimi[it.dataset.cat] = it.dataset.item || null;
   if (f) store.mimi.fur = +f.dataset.fur;
+  if (rnd_) {
+    const any = c => pick(Object.keys(WARDROBE[c].items));
+    store.mimi.outfit = any('outfit'); store.mimi.head = rnd(4) ? any('head') : null; store.mimi.bow = rnd(3) ? any('bow') : null;
+    store.mimi.eyes = rnd(2) ? any('eyes') : null; store.mimi.neck = rnd(4) ? any('neck') : null; store.mimi.hand = rnd(3) ? any('hand') : null;
+    store.mimi.fur = rnd(FURS.length); spawnNote('🎲');
+  }
   save(); applyMimiLook(); sfx.ok(); spawnNote('✨', 2);
-  if (!mimiBusy()) { mimiAnim('pose', 900); mood('happy', 1200); if (rnd(2)) sayMimi('mimi_pretty'); }
+  if (!mimiBusy()) { mimiAnim('pose', 900); mood('happy', 1200); if (rnd_ || rnd(2)) sayMimi('mimi_pretty'); }
 });
 
 /* talking: live microphone when the browser allows it, otherwise the phone's own voice recorder (audio only) */
