@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FFE3F1">
+<meta name="theme-color" content="#FFE3F1"><meta name="robots" content="noindex">
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Valentina"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>El Reino de Valentina</title><meta name="robots" content="noindex">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%B0%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="icono-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
 </head><body>
 <title>El Reino de Valentina</title>
@@ -992,7 +991,7 @@ async function initMic(){
   try {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) return false;
     try { if (navigator.audioSession) navigator.audioSession.type = 'play-and-record'; } catch (e) {}
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
     return true;
   } catch (e) { micStream = null; return false; }
 }
@@ -1120,25 +1119,71 @@ async function playFunny(blob){
   if (buf && buf.duration > .2) return playBuffer(buf);
   playElement(blob);
 }
-function playBuffer(buf){
-  const ch = buf.getChannelData(0); let st = 0;
-  for (let i = 0; i < ch.length; i += 32) { if (Math.abs(ch[i]) > .05) { st = Math.max(0, i / buf.sampleRate - .1); break; } }
-  const dur = Math.max(.3, Math.min(buf.duration - st, 9));
-  const s = ac.createBufferSource(), an = ac.createAnalyser(), g = ac.createGain();
-  s.buffer = buf; s.playbackRate.value = 1.6; g.gain.value = 1.8; an.fftSize = 512;
-  s.connect(an); an.connect(g); g.connect(ac.destination);
+/* Mimi's funny voice: trim silence, clean and boost the recording, pitch it up with a cartoon wobble,
+   add a little "miau" first, then normalize so it plays loud without distorting. */
+const FUNNY = { rate: 1.72, wobbleHz: 6.5, wobbleCents: 85 };
+function trimRange(buf){
+  const ch = buf.getChannelData(0), sr = buf.sampleRate; let peak = 0;
+  for (let i = 0; i < ch.length; i++) { const a = Math.abs(ch[i]); if (a > peak) peak = a; }
+  const th = Math.max(.02, peak * .12); let a = 0, b = ch.length - 1;
+  while (a < ch.length && Math.abs(ch[a]) < th) a++;
+  while (b > a && Math.abs(ch[b]) < th) b--;
+  const st = Math.max(0, a / sr - .08), en = Math.min(buf.duration, b / sr + .2);
+  return { st, dur: Math.max(.3, Math.min(en - st, 9)), peak: peak || 1 };
+}
+function meowInto(ctx, dest, t, k){
+  const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+  o.type = 'sawtooth';
+  o.frequency.setValueAtTime(560 * k, t); o.frequency.linearRampToValueAtTime(950 * k, t + .14); o.frequency.linearRampToValueAtTime(520 * k, t + .42);
+  f.type = 'bandpass'; f.Q.value = 2.5; f.frequency.setValueAtTime(1000, t); f.frequency.linearRampToValueAtTime(2000, t + .15); f.frequency.linearRampToValueAtTime(900, t + .42);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .04); g.gain.setValueAtTime(.42, t + .3); g.gain.exponentialRampToValueAtTime(.001, t + .46);
+  o.connect(f); f.connect(g); g.connect(dest); o.start(t); o.stop(t + .5);
+}
+async function renderFunny(buf){
+  const { st, dur, peak } = trimRange(buf), sr = 44100, lead = .5;
+  const len = Math.ceil((lead + dur / FUNNY.rate + .25) * sr);
+  const OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const oc = new OC(1, len, sr);
+  const s = oc.createBufferSource(); s.buffer = buf; s.playbackRate.value = FUNNY.rate;
+  try { const lfo = oc.createOscillator(), lg = oc.createGain(); lfo.frequency.value = FUNNY.wobbleHz; lg.gain.value = FUNNY.wobbleCents; lfo.connect(lg); lg.connect(s.detune); lfo.start(0); } catch (e) {}
+  const hp = oc.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 160;
+  const pres = oc.createBiquadFilter(); pres.type = 'peaking'; pres.frequency.value = 3200; pres.Q.value = .9; pres.gain.value = 6;
+  const pre = oc.createGain(); pre.gain.value = Math.min(25, .9 / peak);
+  const comp = oc.createDynamicsCompressor(); comp.threshold.value = -26; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .003; comp.release.value = .18;
+  s.connect(hp); hp.connect(pres); pres.connect(pre); pre.connect(comp); comp.connect(oc.destination);
+  meowInto(oc, oc.destination, .02, .95 + Math.random() * .2);
+  s.start(lead, st, dur);
+  const out = await new Promise((res, rej) => { oc.oncomplete = e => res(e.renderedBuffer); const p = oc.startRendering(); if (p && p.then) p.then(res, rej); });
+  const d = out.getChannelData(0); let m = 0; for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > m) m = a; }
+  if (m > 0) { const k = .98 / m; for (let i = 0; i < d.length; i++) d[i] *= k; }
+  return out;
+}
+async function playBuffer(buf){
+  let out = null;
+  try { out = await renderFunny(buf); } catch (e) { out = null; }
+  const s = ac.createBufferSource(), an = ac.createAnalyser(); an.fftSize = 512;
+  if (out) { s.buffer = out; s.connect(an); an.connect(ac.destination); }
+  else {
+    const { st, dur, peak } = trimRange(buf), g = ac.createGain(), comp = ac.createDynamicsCompressor();
+    s.buffer = buf; s.playbackRate.value = FUNNY.rate; g.gain.value = Math.min(25, .9 / peak);
+    s.connect(g); g.connect(comp); comp.connect(an); an.connect(ac.destination);
+    const end = beginTalk(an); s.onended = end; s.start(0, st, dur);
+    talkStop = () => { try { s.stop(); } catch (e) {} end(); };
+    return;
+  }
+  ensureAc();
   const end = beginTalk(an);
-  s.onended = end; s.start(0, st, dur);
+  s.onended = end; s.start(0);
   talkStop = () => { try { s.stop(); } catch (e) {} end(); };
 }
 function playElement(blob){
   const url = URL.createObjectURL(blob), v = document.createElement('audio');
-  v.src = url; v.muted = false;
+  v.src = url; v.muted = false; v.volume = 1;
   v.preservesPitch = false; v.webkitPreservesPitch = false; v.mozPreservesPitch = false;
   v.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0';
   document.body.appendChild(v);
   let an = null;
-  try { const src = ac.createMediaElementSource(v); an = ac.createAnalyser(); an.fftSize = 512; src.connect(an); an.connect(ac.destination); } catch (e) { an = null; }
+  try { const src = ac.createMediaElementSource(v), g = ac.createGain(), comp = ac.createDynamicsCompressor(); g.gain.value = 3; an = ac.createAnalyser(); an.fftSize = 512; src.connect(g); g.connect(comp); comp.connect(an); an.connect(ac.destination); } catch (e) { an = null; }
   const cleanup = () => { try { v.pause(); } catch (e) {} v.remove(); URL.revokeObjectURL(url); $('#playBack').hidden = true; };
   const go = () => {
     $('#playBack').hidden = true; v.playbackRate = 1.6;
