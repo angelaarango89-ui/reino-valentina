@@ -11,56 +11,13 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="comun.css">
 <style>
-/* Layout: storybook castle. Home = title, illustrated world banner with tappable friends, world map, game doors, sticker album.
-   Play screens share one top bar + host bubble + stage. Single bright look on purpose; world tokens re-tint the sky. */
-:root{
-  --ink:#4A2361; --ink-soft:#7B5591; --card:#FFFFFF; --soft:#FFF4FA; --line:#F2C6DE;
-  --rose:#FF4FA0; --rose-d:#D12E7A; --lilac:#A77BFF; --lilac-d:#7C4FE0;
-  --mint:#2FC4A4; --mint-d:#16977C; --sun:#FFC22E; --sun-d:#E09800;
-  --peach:#FF8A6B; --peach-d:#E2603F; --sky:#5BB8F5; --sky-d:#2F8FD6;
-  --sky1:#FFE3F1; --sky2:#EFE0FF; --hill:#FFB8DA; --hill2:#F59ACB; --wacc:#FF4FA0;
-  --display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
-  --body:"Nunito","Trebuchet MS",system-ui,sans-serif;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-[hidden]{display:none!important}
-html,body{min-height:100%}
-body{
-  background:
-    radial-gradient(circle at 12% 14%, #ffffffb0 0 3px, transparent 4px),
-    radial-gradient(circle at 84% 8%, #ffffffcc 0 2px, transparent 3px),
-    radial-gradient(circle at 72% 38%, #ffffff99 0 3px, transparent 4px),
-    radial-gradient(circle at 20% 62%, #ffffffaa 0 2px, transparent 3px),
-    radial-gradient(circle at 92% 80%, #ffffffaa 0 3px, transparent 4px),
-    linear-gradient(180deg, var(--sky1), var(--sky2));
-  background-color:var(--sky1); background-attachment:fixed;
-  color:var(--ink); font-family:var(--body); font-size:16px;
-  padding-left:max(16px, env(safe-area-inset-left, 0px));
-  padding-right:max(16px, env(safe-area-inset-right, 0px));
-  padding-block:12px 44px; overflow-x:hidden;
-  -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;
-}
-button,label.btnlike{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-button:focus-visible,label:focus-visible{outline:4px solid var(--sun);outline-offset:3px}
-.wrap{max-width:760px;margin:0 auto}
-svg{display:block;width:100%;height:auto}
-.eyes{transform-box:fill-box;transform-origin:50% 50%;animation:blink 4.5s infinite}
-@keyframes blink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.1)}}
-
-/* top bar pills */
-.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border-radius:999px;padding:7px 14px;
-  font-family:var(--display);font-weight:800;font-size:1.1rem;box-shadow:0 4px 0 var(--line);white-space:nowrap}
-.pill b{font-variant-numeric:tabular-nums}
-button.pill:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
-
+/* Castle and games page. Mimi's room lives in mimi.html so the phone frees its memory when she leaves it. */
 /* title */
 h1{font-family:var(--display);font-weight:800;font-size:clamp(2.2rem,8.5vw,3.6rem);line-height:.92;margin:16px 0 12px;text-align:center;text-wrap:balance}
 h1 small{display:block;font-size:.5em;color:var(--ink-soft);letter-spacing:.02em}
 h1 .name{color:var(--wacc);display:inline-block;transform:rotate(-3deg);text-shadow:3px 3px 0 var(--sun),6px 6px 0 #ffffff}
-
 /* banner */
 .banner{position:relative;border-radius:32px;overflow:hidden;aspect-ratio:400/230;max-width:100%;border:5px solid #fff;
   box-shadow:0 10px 0 var(--line),0 18px 30px #4A236122;background:var(--sky1)}
@@ -70,16 +27,12 @@ h1 .name{color:var(--wacc);display:inline-block;transform:rotate(-3deg);text-sha
 .friend .av{width:100%;filter:drop-shadow(0 5px 0 #00000018);animation:idle 3.2s ease-in-out infinite}
 .friend:nth-of-type(2) .av{animation-delay:-1s}.friend:nth-of-type(3) .av{animation-delay:-2s}
 .friend span{font-family:var(--display);font-weight:800;font-size:clamp(.75rem,3vw,1rem);background:var(--card);border-radius:999px;padding:0 10px;margin-top:-6px}
-@keyframes idle{50%{transform:translateY(-6px)}}
-.bounce{animation:bounce .6s!important}
-@keyframes bounce{0%,100%{transform:translateY(0)}30%{transform:translateY(-18px) rotate(-5deg)}60%{transform:translateY(0) rotate(4deg)}}
-.cloud{animation:drift 26s linear infinite}
-.cloud.b{animation-duration:38s;animation-delay:-14s}
-@keyframes drift{from{transform:translateX(-120px)}to{transform:translateX(460px)}}
-
+.hcloud{position:absolute;left:0;width:17%;z-index:0;pointer-events:none;will-change:transform;animation:drift 30s linear infinite}
+.hcloud.a{top:5%}.hcloud.b{top:15%;width:12%;animation-duration:44s;animation-delay:-20s;opacity:.85}
+@keyframes drift{from{transform:translateX(-120%)}to{transform:translateX(620%)}}
+.friend{z-index:1}.friend .av{will-change:transform}
 h2{font-family:var(--display);font-weight:800;font-size:1.55rem;margin:30px 0 12px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;line-height:1}
 h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--ink-soft)}
-
 /* worlds */
 .worlds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .world{position:relative;background:var(--card);border-radius:24px;padding:10px 6px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -104,7 +57,7 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .door em{font-style:normal;font-weight:900;font-size:.82rem;background:#ffffff38;border-radius:999px;padding:2px 10px;align-self:flex-start}
 .door.wide{grid-column:1/-1;min-height:120px;padding-left:132px}
 .door.wide .dav{left:6px;right:auto;top:auto;bottom:-10px;width:118px;transform:none}
-.door.wide .dav svg{animation:wiggle 2.4s ease-in-out infinite}
+.door.wide .dav svg{animation:wiggle 2.4s ease-in-out infinite;will-change:transform}
 @keyframes wiggle{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
 
 /* album */
@@ -116,13 +69,12 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .slot.got{border:3px solid var(--sun);background:#FFF7DA;animation:pop .5s}
 .reward{display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:800;color:var(--ink-soft);font-size:.95rem}
 .reward .mini-crown{width:40px;flex:none}
-@keyframes pop{0%{transform:scale(.3)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
 .parents{font-size:.9rem;color:var(--ink-soft);background:#ffffffa6;border-radius:18px;padding:12px 14px;margin-top:26px;line-height:1.5}
 
 /* play */
 #dots{display:flex;gap:3px;font-size:1.2rem}
 .speech{display:flex;align-items:center;gap:10px;margin:14px 0 10px}
-.host{width:92px;flex:none;animation:idle 3s ease-in-out infinite}
+.host{width:92px;flex:none;animation:idle 3s ease-in-out infinite;will-change:transform}
 .bubble{position:relative;flex:1;min-width:0;background:var(--card);border-radius:24px;padding:12px 16px;box-shadow:0 6px 0 var(--line)}
 .bubble::before{content:"";position:absolute;left:-12px;top:50%;margin-top:-10px;border:10px solid transparent;border-right:14px solid var(--card);border-left:0}
 #prompt{font-family:var(--display);font-weight:800;font-size:clamp(1.25rem,5.2vw,1.75rem);line-height:1.1;margin:0 0 6px;text-wrap:balance}
@@ -158,12 +110,14 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 @keyframes shake{20%{transform:translateX(-10px)}40%{transform:translateX(10px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
 
 .mem{display:grid;grid-template-columns:repeat(var(--cols),minmax(0,1fr));gap:10px;width:100%;max-width:440px}
-.card{aspect-ratio:3/4;position:relative;transform-style:preserve-3d;transition:transform .4s}
-.card.up{transform:rotateY(180deg)}
-.card .back,.card .face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center}
+.card{aspect-ratio:3/4;position:relative;transition:transform .13s ease-in}
+.card.flip{transform:scaleX(0)}
+.card .back,.card .face{position:absolute;inset:0;border-radius:18px;display:grid;place-items:center}
+.card .face{visibility:hidden}
+.card.up .face{visibility:visible}.card.up .back{visibility:hidden}
 .card .back{background:var(--lilac) repeating-linear-gradient(45deg,#ffffff22 0 8px,transparent 8px 16px);box-shadow:0 5px 0 var(--lilac-d)}
 .card .back::after{content:"👑";font-size:1.6rem}
-.card .face{background:#fff;transform:rotateY(180deg);font-size:clamp(2rem,9vw,2.8rem);box-shadow:0 5px 0 var(--line)}
+.card .face{background:#fff;font-size:clamp(2rem,9vw,2.8rem);box-shadow:0 5px 0 var(--line)}
 .card.done .face{background:#FFF1C4;box-shadow:0 0 0 4px var(--sun)}
 
 /* puzzle */
@@ -175,121 +129,16 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .board.done{animation:pop .6s;box-shadow:0 0 0 4px #fff,0 0 0 9px var(--sun)}
 .tray{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;min-height:60px;width:100%}
 .piece{border-radius:12px;background-image:var(--img);background-repeat:no-repeat;box-shadow:0 0 0 3px #fff,0 6px 0 3px var(--line);touch-action:none;cursor:grab;flex:none}
-.piece.drag{position:fixed;z-index:40;transform:scale(1.06);box-shadow:0 0 0 3px #fff,0 14px 20px #4A236144;cursor:grabbing}
+.piece.drag{position:fixed;z-index:40;will-change:transform;box-shadow:0 0 0 3px #fff,0 14px 20px #4A236144;cursor:grabbing}
 .piece.placed{position:absolute;border-radius:0;box-shadow:none;cursor:default;animation:snap .3s}
 @keyframes snap{50%{filter:brightness(1.3)}}
 .piece.no{animation:shake .45s}
-
-/* Mimi room */
-.room{position:relative;margin-top:14px;border-radius:32px;overflow:hidden;border:5px solid #fff;box-shadow:0 10px 0 var(--line),0 18px 30px #4A236122;
-  aspect-ratio:10/11;max-width:100%;
-  background:
-    radial-gradient(circle at 12px 12px,#ffffff80 0 3px,transparent 4px) 0 0/34px 34px,
-    linear-gradient(180deg,#D9C6FF,#F6DDF6 70%)}
-.room .wall-stripe{position:absolute;left:0;right:0;top:58%;height:5%;background:#fff;opacity:.6}
-.room .win{position:absolute;left:6%;top:7%;width:30%;aspect-ratio:1;border-radius:46% 46% 10px 10px;border:6px solid #fff;overflow:hidden;
-  background:radial-gradient(circle at 70% 30%,#FFF6C9 0 12%,transparent 13%),radial-gradient(circle at 25% 60%,#fff 0 2px,transparent 3px),radial-gradient(circle at 55% 75%,#fff 0 2px,transparent 3px),radial-gradient(circle at 35% 25%,#fff 0 1.5px,transparent 2.5px),linear-gradient(180deg,#5B4BB5,#9E7CE8)}
-.room .win::before,.room .win::after{content:"";position:absolute;background:#fff}
-.room .win::before{left:50%;top:0;bottom:0;width:5px;margin-left:-2.5px}.room .win::after{top:50%;left:0;right:0;height:5px;margin-top:-2.5px}
-.room .shelf{position:absolute;right:6%;top:18%;width:32%;display:flex;justify-content:space-around;align-items:flex-end;font-size:clamp(1.3rem,6vw,2rem);line-height:1;
-  border-bottom:8px solid #E0AE7E;border-radius:2px;padding-bottom:2px}
-.room .garland{position:absolute;left:0;right:0;top:0;height:30px;display:flex;justify-content:space-around;pointer-events:none}
-.room .garland i{width:22px;height:26px;clip-path:polygon(0 0,100% 0,50% 100%);background:var(--c)}
-.room .floor{position:absolute;left:0;right:0;bottom:0;height:28%;background:repeating-linear-gradient(90deg,#F4CFA6 0 54px,#E9BD90 54px 57px);border-top:7px solid #E3AF80}
-.room .rug{position:absolute;left:10%;right:10%;bottom:5%;height:17%;border-radius:50%;
-  background:radial-gradient(ellipse at center,#FFB8DA 0 38%,#fff 39% 43%,#FF9CCB 44% 100%);box-shadow:0 0 0 5px #fff}
-.room .notes{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:3}
-.room .notes span{position:absolute;bottom:30%;font-size:1.8rem;animation:float 2.4s ease-out forwards}
-@keyframes float{from{transform:translateY(0) scale(.6);opacity:1}to{transform:translateY(-220px) scale(1.2) rotate(20deg);opacity:0}}
-.room.party::after{content:"";position:absolute;left:-50%;top:-50%;width:200%;height:200%;pointer-events:none;z-index:1;opacity:.35;
-  background:conic-gradient(#FF4FA0,#FFC22E,#2FC4A4,#5BB8F5,#A77BFF,#FF4FA0);animation:spin360 3s linear infinite}
-.mimi-wrap{position:absolute;left:50%;bottom:4%;width:62%;transform:translateX(-50%);z-index:2}
-#mimiSays{position:absolute;left:50%;top:6%;transform:translateX(-50%);z-index:4;background:#fff;border-radius:999px;padding:6px 16px;font-family:var(--display);font-weight:800;font-size:1.05rem;
-  box-shadow:0 5px 0 var(--line);white-space:nowrap}
-#mimiBig{display:block;width:100%;touch-action:manipulation;padding:0}
-#mimiBig .tail{transform-box:fill-box;transform-origin:0% 90%;animation:tail 1.6s ease-in-out infinite}
-@keyframes tail{50%{transform:rotate(12deg)}}
-#mimiBig #mHead,#mimiBig #mBody,#mimiBig #mPawL,#mimiBig #mPawR{transform-box:fill-box}
-#mimiBig #mHead{transform-origin:50% 92%}#mimiBig #mBody{transform-origin:50% 100%;animation:breathe 3.4s ease-in-out infinite}
-#mimiBig #mPawL{transform-origin:80% 10%}#mimiBig #mPawR{transform-origin:20% 10%}
-@keyframes breathe{50%{transform:scale(1.02,.985)}}
-#mimiBig .mouth-open{transform-box:fill-box;transform-origin:50% 0%;transform:scaleY(0)}
-#mimiBig .happy-eyes,#mimiBig .wow-eyes{opacity:0}
-#mimiBig.happy .eyes,#mimiBig.wow .eyes{opacity:0}
-#mimiBig.happy .happy-eyes{opacity:1}#mimiBig.wow .wow-eyes{opacity:1}
-#mimiBig.jump{animation:jump .7s}
-@keyframes jump{30%{transform:translateY(-16%) scaleY(1.04)}60%{transform:translateY(0) scaleY(.94)}}
-#mimiBig.spin{animation:spin360 .85s ease-in-out}
-@keyframes spin360{to{transform:rotate(360deg)}}
-#mimiBig.wig #mHead,#mimiBig.listen #mHead{animation:headwig .9s ease-in-out}
-#mimiBig.listen #mHead{animation-duration:2s;animation-iteration-count:infinite}
-@keyframes headwig{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
-#mimiBig.pose{animation:pose .9s}
-@keyframes pose{30%{transform:scale(1.08) rotate(-4deg)}60%{transform:scale(1.04) rotate(4deg)}}
-#mimiBig.pose #mPawR{animation:pawR .45s 2}
-#mimiBig.dance{animation:hop .44s ease-in-out infinite}
-#mimiBig.dance #mBody{animation:sway .88s ease-in-out infinite}
-#mimiBig.dance #mHead{animation:headwig .88s ease-in-out infinite}
-#mimiBig.dance #mPawL{animation:pawL .44s ease-in-out infinite}
-#mimiBig.dance #mPawR{animation:pawR .44s ease-in-out infinite}
-#mimiBig.dance .tail{animation-duration:.44s}
-@keyframes hop{50%{transform:translateY(-6%)}}
-@keyframes sway{25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
-@keyframes pawL{50%{transform:rotate(70deg)}}
-@keyframes pawR{50%{transform:rotate(-70deg)}}
-#mimiBig.talk{animation:hop .34s ease-in-out infinite}
-#mimiBig.chomp .mouth-open{animation:chomp .3s ease-in-out 6}
-@keyframes chomp{50%{transform:scaleY(1)}}
-.room-ctrl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px;justify-items:center}
-.big-btn{width:100%;max-width:120px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;align-content:center;gap:2px;color:#fff;font-family:var(--display);font-weight:800;
-  font-size:clamp(.82rem,3.6vw,1.05rem);background:var(--c,var(--rose));box-shadow:0 7px 0 var(--cd,var(--rose-d));position:relative;line-height:1;text-align:center}
-.big-btn b{font-size:clamp(1.8rem,8vw,2.6rem);line-height:1}
-.big-btn:active{transform:translateY(6px);box-shadow:none}
-.big-btn.rec{--c:var(--mint);--cd:var(--mint-d)}
-.big-btn.rec::after,.big-btn.main::after{content:"";position:absolute;inset:-7px;border-radius:50%;border:5px solid var(--c,var(--rose));animation:ring 1.4s infinite}
-@keyframes ring{from{transform:scale(.9);opacity:1}to{transform:scale(1.22);opacity:0}}
-#playBack{display:block;margin:14px auto 0}
-.dress{background:var(--card);border-radius:24px;padding:12px;margin-top:16px;box-shadow:0 6px 0 var(--line);display:grid;gap:10px}
-.dress-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
-.dress-tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:2px 2px 8px}
-.dress-tabs::-webkit-scrollbar{display:none}
-.dtab{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;min-width:72px;padding:6px 8px;border-radius:16px;background:var(--soft);font-weight:900;font-size:.75rem;color:var(--ink-soft);border:3px solid transparent}
-.dtab b{font-size:1.5rem;line-height:1.1}
-.dtab.on{background:#FFE3F1;border-color:var(--rose);color:var(--ink)}
-.swatch.none{font-size:1.3rem;opacity:.75}
-#surpriseBtn{font-size:1.1rem;padding:11px}
-.swatch{width:58px;height:58px;border-radius:50%;font-size:1.7rem;display:grid;place-items:center;background:var(--soft);border:3px solid var(--line)}
-.swatch.on{border-color:var(--rose);background:#FFE3F1;box-shadow:0 0 0 3px #fff,0 0 0 6px var(--rose)}
-.swatch.fur{background:linear-gradient(135deg,var(--sw) 0 60%,var(--sw2) 60%)}
-.room-note{font-size:.85rem;font-weight:800;color:var(--ink-soft);text-align:center;margin:14px auto 0;max-width:470px;line-height:1.45}
-#audioIn{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-
-/* overlays */
-.overlay{position:fixed;inset:0;background:#4A236199;display:grid;place-items:center;z-index:50;overflow:auto;
-  padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
-#start{background:#4A2361d9}
-.prize{background:var(--card);border-radius:32px;padding:22px 20px;text-align:center;max-width:390px;width:100%;box-shadow:0 10px 0 var(--line);animation:pop .5s}
-.prize .big{font-size:5rem;width:132px;height:132px;margin:0 auto;display:grid;place-items:center;border-radius:50%;background:#FFF7DA;box-shadow:0 0 0 6px var(--sun);animation:spinIn 1.4s ease-out}
-.prize .big svg{width:96px}
-@keyframes spinIn{from{transform:rotate(-200deg) scale(.2)}to{transform:none}}
-.prize h3{font-family:var(--display);font-weight:800;font-size:1.85rem;line-height:1.05;margin:16px 0 6px;color:var(--rose);text-wrap:balance}
-.prize p{margin:0 0 16px;color:var(--ink-soft);font-weight:800;line-height:1.35}
-.prize .row{display:grid;gap:10px}
-.btn{border-radius:20px;padding:14px;font-family:var(--display);font-weight:800;font-size:1.25rem;color:#fff;background:var(--rose);box-shadow:0 6px 0 var(--rose-d)}
-.btn.alt{background:var(--lilac);box-shadow:0 6px 0 var(--lilac-d)}
-.btn.gold{background:var(--sun);box-shadow:0 6px 0 var(--sun-d);color:var(--ink)}
-.btn:active{transform:translateY(5px);box-shadow:none}
-.prize .note{font-size:.85rem;font-weight:700;margin:14px 0 0;line-height:1.4}
-#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
-.fly{position:fixed;z-index:45;font-size:2rem;pointer-events:none}
-
 @media (max-width:420px){
   .host{width:74px} .obj{width:50px;height:50px;font-size:1.9rem}
   .opt{min-height:80px} .door{min-height:136px} .door .dav{width:72px}
   .door.wide{padding-left:112px} .door.wide .dav{width:100px}
   .world .medal{width:52px;height:52px;font-size:1.6rem} .world .lock{top:28px}
 }
-@media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }
 </style>
 
 <main class="wrap">
@@ -336,39 +185,6 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
     <div class="opts" id="opts"></div>
   </section>
 
-  <!-- MIMI ROOM -->
-  <section id="mimi" hidden>
-    <div class="bar">
-      <button class="pill" id="mimiBack">🏰 Volver</button>
-      <span class="pill">🐱 El cuarto de Mimi</span>
-    </div>
-    <div class="room" id="room">
-      <div class="garland"><i style="--c:#FF6F91"></i><i style="--c:#FFC22E"></i><i style="--c:#2FC4A4"></i><i style="--c:#5BB8F5"></i><i style="--c:#A77BFF"></i><i style="--c:#FF6F91"></i><i style="--c:#FFC22E"></i></div>
-      <div class="win"></div>
-      <div class="shelf"><span>🧸</span><span>🌷</span><span>🧶</span></div>
-      <div class="wall-stripe"></div>
-      <div class="floor"></div><div class="rug"></div>
-      <div class="notes" id="notes"></div>
-      <span id="mimiSays" hidden></span>
-      <div class="mimi-wrap"><button id="mimiBig" aria-label="Tocar a Mimi"></button></div>
-    </div>
-    <button class="btn" id="playBack" hidden>▶️ ¡Escucha a Mimi!</button>
-    <div class="room-ctrl">
-      <button class="big-btn main" id="talkBtn" hidden><b>🎤</b>Háblale</button>
-      <label class="big-btn main btnlike" id="talkLabel" for="audioIn"><b>🎤</b>Grábate</label>
-      <input type="file" id="audioIn" accept="audio/*">
-      <button class="big-btn" id="feedBtn" style="--c:var(--peach);--cd:var(--peach-d)"><b>🐟</b>Comida</button>
-      <button class="big-btn" id="danceBtn" style="--c:var(--lilac);--cd:var(--lilac-d)"><b>💃</b>Bailar</button>
-      <button class="big-btn" id="dressBtn" style="--c:var(--mint);--cd:var(--mint-d)"><b>👗</b>Vestir</button>
-    </div>
-    <div class="dress" id="dress" hidden>
-      <div class="dress-tabs" id="dressTabs"></div>
-      <div class="dress-row" id="dressItems"></div>
-      <button class="btn gold" id="surpriseBtn">🎲 ¡Sorpréndeme!</button>
-    </div>
-    <p class="room-note" id="roomNote"></p>
-    <p class="room-note">Toca a Mimi en la cabeza, la barriga, la cola o el cascabel: cada parte reacciona distinto.</p>
-  </section>
 </main>
 
 <div class="overlay" id="done" hidden>
@@ -395,22 +211,9 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 </div>
 <canvas id="fx"></canvas>
 
-<script src="voces.js"></script>
+<script src="voz/textos.js"></script>
+<script src="comun.js"></script>
 <script>
-const $ = s => document.querySelector(s);
-const INK = '#4A2361';
-const rnd = n => Math.floor(Math.random() * n);
-const pick = a => a[rnd(a.length)];
-const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-const wait = ms => new Promise(r => setTimeout(r, ms));
-
-/* ---------------- saved progress ---------------- */
-let store = { stars: 0, sound: true, world: 0, unlocked: 1, stickers: [0, 0, 0] };
-try {
-  const s = JSON.parse(localStorage.getItem('reinoValentina') || 'null');
-  if (s) { if (typeof s.stickers === 'number') s.stickers = [s.stickers, 0, 0]; store = Object.assign(store, s); }
-} catch (e) {}
-function save(){ try { localStorage.setItem('reinoValentina', JSON.stringify(store)); } catch (e) {} }
 const LV = () => store.world;
 
 /* ---------------- worlds ---------------- */
@@ -427,39 +230,6 @@ function applyTheme(){
   r.setProperty('--sky1', w.sky1); r.setProperty('--sky2', w.sky2); r.setProperty('--hill', w.hill); r.setProperty('--hill2', w.hill2); r.setProperty('--wacc', w.acc);
 }
 
-/* ---------------- characters (original designs) ---------------- */
-const CH = {
-  kitty: a => KITTY_SMALL(a),
-  unicorn: (a = '') => `<svg ${a} viewBox="0 0 120 120" aria-hidden="true">
-    <circle cx="30" cy="46" r="13" fill="#FF8CC6"/><circle cx="23" cy="66" r="12" fill="#B99BFF"/><circle cx="27" cy="86" r="11" fill="#6FE0C6"/>
-    <circle cx="90" cy="46" r="13" fill="#FFD25E"/><circle cx="97" cy="66" r="12" fill="#FF8CC6"/><circle cx="93" cy="86" r="11" fill="#B99BFF"/>
-    <path d="M38 42 L33 16 L54 32 Z" fill="#fff" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-    <path d="M82 42 L87 16 L66 32 Z" fill="#fff" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-    <ellipse cx="60" cy="66" rx="34" ry="36" fill="#fff" stroke="${INK}" stroke-width="3.5"/>
-    <circle cx="48" cy="34" r="9" fill="#FF8CC6"/><circle cx="72" cy="34" r="9" fill="#B99BFF"/>
-    <path d="M60 4 L51 36 L69 36 Z" fill="#FFC22E" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M54 27 L66 23 M56 18 L64 15" stroke="${INK}" stroke-width="2" stroke-linecap="round"/>
-    <g class="eyes"><ellipse cx="47" cy="62" rx="6" ry="8" fill="${INK}"/><circle cx="49" cy="59" r="2.5" fill="#fff"/>
-    <ellipse cx="73" cy="62" rx="6" ry="8" fill="${INK}"/><circle cx="75" cy="59" r="2.5" fill="#fff"/></g>
-    <path d="M41 56 l-4 -4 M79 56 l4 -4" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="36" cy="76" r="6" fill="#FF9CCB" opacity=".75"/><circle cx="84" cy="76" r="6" fill="#FF9CCB" opacity=".75"/>
-    <ellipse cx="60" cy="88" rx="24" ry="15" fill="#FFD6EA" stroke="${INK}" stroke-width="3"/>
-    <circle cx="52" cy="85" r="2.6" fill="${INK}"/><circle cx="68" cy="85" r="2.6" fill="${INK}"/>
-    <path d="M53 94 q7 6 14 0" fill="none" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/>
-  </svg>`,
-  princess: (a = '') => `<svg ${a} viewBox="0 0 120 120" aria-hidden="true">
-    <path d="M22 70 Q18 26 60 24 Q102 26 98 70 Q100 104 88 114 L32 114 Q20 104 22 70 Z" fill="#8A4A2F" stroke="${INK}" stroke-width="3.5"/>
-    <path d="M30 120 Q34 98 60 96 Q86 98 90 120 Z" fill="#FF4FA0" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/>
-    <circle cx="60" cy="66" r="30" fill="#FFDCC8" stroke="${INK}" stroke-width="3.5"/>
-    <path d="M30 62 Q32 36 60 36 Q88 36 90 62 Q78 48 63 52 Q50 46 30 62 Z" fill="#8A4A2F" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M40 38 L43 14 L52 27 L60 9 L68 27 L77 14 L80 38 Z" fill="#FFC22E" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
-    <circle cx="60" cy="29" r="4" fill="#A77BFF" stroke="${INK}" stroke-width="1.5"/><circle cx="48" cy="32" r="2.8" fill="#2FC4A4"/><circle cx="72" cy="32" r="2.8" fill="#FF4FA0"/>
-    <g class="eyes"><ellipse cx="49" cy="68" rx="5" ry="6.5" fill="${INK}"/><circle cx="51" cy="66" r="2" fill="#fff"/>
-    <ellipse cx="71" cy="68" rx="5" ry="6.5" fill="${INK}"/><circle cx="73" cy="66" r="2" fill="#fff"/></g>
-    <circle cx="41" cy="78" r="6" fill="#FF9CCB" opacity=".75"/><circle cx="79" cy="78" r="6" fill="#FF9CCB" opacity=".75"/>
-    <path d="M53 81 q7 7 14 0 z" fill="#FF6F91" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
-  </svg>`
-};
 const FRIENDS = [{ id: 'princess', name: 'Luna', key: 'hi_princess' }, { id: 'unicorn', name: 'Estrella', key: 'hi_unicorn' }, { id: 'kitty', name: 'Mimi', key: 'hi_kitty' }];
 
 const crownSVG = (c, a = '') => `<svg ${a} viewBox="0 0 100 80" aria-hidden="true">
@@ -469,249 +239,6 @@ const crownSVG = (c, a = '') => `<svg ${a} viewBox="0 0 100 80" aria-hidden="tru
   <circle cx="4" cy="18" r="5" fill="#FFC22E" stroke="${INK}" stroke-width="2.5"/><circle cx="50" cy="6" r="5" fill="#FFC22E" stroke="${INK}" stroke-width="2.5"/><circle cx="96" cy="18" r="5" fill="#FFC22E" stroke="${INK}" stroke-width="2.5"/></svg>`;
 
 /* Mimi, the kitten: one head drawing used for the small avatar (literal colors) and the big room Mimi (color tokens) */
-const FURS = [
-  { fur: '#EFE2FF', fur2: '#DCC8FF', stripe: '#C4A6FF', belly: '#FFFFFF', bow: '#FF4FA0', label: 'Lila' },
-  { fur: '#FFFFFF', fur2: '#F1ECF7', stripe: '#E2D7F2', belly: '#FFF1F8', bow: '#A77BFF', label: 'Blanca' },
-  { fur: '#FFD7AE', fur2: '#FFC28A', stripe: '#F79A4A', belly: '#FFF6EC', bow: '#2FC4A4', label: 'Naranja' },
-  { fur: '#E3E6F0', fur2: '#CDD2E0', stripe: '#9EA6BD', belly: '#FFFFFF', bow: '#FF4FA0', label: 'Gris' },
-  { fur: '#FFDDEE', fur2: '#FFC6E2', stripe: '#FF9CCB', belly: '#FFFFFF', bow: '#A77BFF', label: 'Rosa' }
-];
-const VARF = { fur: 'var(--fur)', fur2: 'var(--fur2)', stripe: 'var(--stripe)', belly: 'var(--belly)', bow: 'var(--bow)' };
-const sf = c => `style="fill:${c}"`;
-const bowSVG = F => `<g transform="translate(178 56) rotate(18)"><path d="M0 0 C-10 -18 -28 -12 -24 2 C-28 16 -10 18 0 0Z M0 0 C10 -18 28 -12 24 2 C28 16 10 18 0 0Z" ${sf(F.bow)} stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><circle r="6.5" fill="#FFC22E" stroke="${INK}" stroke-width="2.5"/></g>`;
-function kittyHead(F, big){
-  const eye = (x, flip) => `<ellipse cx="${x}" cy="110" rx="18" ry="21" fill="${INK}"/><ellipse cx="${x}" cy="116" rx="12.5" ry="12.5" fill="#7B4FE0"/><ellipse cx="${x}" cy="121" rx="8" ry="5" fill="#B9A2FF"/>
-    <circle cx="${x + 7}" cy="101" r="6.5" fill="#fff"/><circle cx="${x - 6}" cy="120" r="3" fill="#fff"/>`;
-  return `
-  <path d="M56 86 L46 22 Q48 11 59 16 L106 52 Z" ${sf(F.fur)} stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M184 86 L194 22 Q192 11 181 16 L134 52 Z" ${sf(F.fur)} stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M63 68 L58 31 L89 54 Z" fill="#FF9CCB"/><path d="M177 68 L182 31 L151 54 Z" fill="#FF9CCB"/>
-  <path d="M120 40 C178 40 208 70 208 110 C208 152 170 172 120 172 C70 172 32 152 32 110 C32 70 62 40 120 40 Z" ${sf(F.fur)} stroke="${INK}" stroke-width="4"/>
-  <path d="M40 132 C52 158 84 170 120 170 C100 162 60 156 40 132Z" ${sf(F.fur2)}/>
-  <rect x="103" y="46" width="7" height="14" rx="3.5" ${sf(F.stripe)}/><rect x="116.5" y="44" width="7" height="19" rx="3.5" ${sf(F.stripe)}/><rect x="130" y="46" width="7" height="14" rx="3.5" ${sf(F.stripe)}/>
-  <path d="M36 98 l12 3 M35 108 l12 1 M204 98 l-12 3 M205 108 l-12 1" style="stroke:${F.stripe}" stroke-width="5" stroke-linecap="round"/>
-  <g class="eyes">${eye(86)}${eye(154)}
-    <path d="M68 100 l-9 -6 M67 109 l-10 -1 M172 100 l9 -6 M173 109 l10 -1" stroke="${INK}" stroke-width="3.5" stroke-linecap="round"/></g>
-  ${big ? `<g class="happy-eyes"><path d="M68 116 Q86 94 104 116 M136 116 Q154 94 172 116" fill="none" stroke="${INK}" stroke-width="6" stroke-linecap="round"/></g>
-  <g class="wow-eyes"><circle cx="86" cy="110" r="15" fill="#fff" stroke="${INK}" stroke-width="4"/><circle cx="86" cy="110" r="7" fill="${INK}"/><circle cx="154" cy="110" r="15" fill="#fff" stroke="${INK}" stroke-width="4"/><circle cx="154" cy="110" r="7" fill="${INK}"/></g>` : ''}
-  <ellipse cx="60" cy="138" rx="14" ry="8" fill="#FF9CCB" opacity=".8"/><ellipse cx="180" cy="138" rx="14" ry="8" fill="#FF9CCB" opacity=".8"/>
-  ${big ? `<g class="mouth-open"><ellipse cx="120" cy="149" rx="11" ry="12" fill="#C2185B" stroke="${INK}" stroke-width="2.5"/><ellipse cx="120" cy="155" rx="7" ry="4.5" fill="#FF8FB1"/></g>` : ''}
-  <path d="M113 130 q7 -6 14 0 q-2 7 -7 9 q-5 -2 -7 -9z" fill="#FF6FB0" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
-  <path d="M120 139 q-6 9 -14 3 M120 139 q6 9 14 3" fill="none" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/>
-  <path d="M40 124 L10 118 M40 132 L8 134 M42 140 L14 150 M200 124 L230 118 M200 132 L232 134 M198 140 L226 150" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
-}
-const KITTY_SMALL = (a = '') => `<svg ${a} viewBox="4 -4 232 190" aria-hidden="true">${kittyHead(FURS[0])}${bowSVG(FURS[0])}</svg>`;
-
-const ACC = {
-  bow: bowSVG(VARF),
-  crown: `<g transform="translate(120 42)"><path d="M-30 0 L-34 -30 L-16 -14 L0 -36 L16 -14 L34 -30 L30 0 Z" fill="#FFC22E" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/><circle cx="0" cy="-12" r="5" fill="#FF4FA0" stroke="${INK}" stroke-width="2"/><circle cx="-18" cy="-6" r="3.5" fill="#2FC4A4"/><circle cx="18" cy="-6" r="3.5" fill="#A77BFF"/></g>`,
-  flower: [[66, 62, '#FF6F91'], [90, 47, '#FFA552'], [120, 41, '#B48CFF'], [150, 47, '#62B6FF'], [174, 62, '#FF6F91']].map(([x, y, c]) =>
-    `<g transform="translate(${x} ${y})" stroke="${INK}" stroke-width="2"><circle cy="-7" r="6.5" fill="${c}"/><circle cx="7" cy="-1" r="6.5" fill="${c}"/><circle cx="4" cy="7" r="6.5" fill="${c}"/><circle cx="-4" cy="7" r="6.5" fill="${c}"/><circle cx="-7" cy="-1" r="6.5" fill="${c}"/><circle r="4.5" fill="#FFD84D"/></g>`).join(''),
-  hat: `<g transform="translate(100 44) rotate(-16)"><path d="M-22 0 L0 -58 L22 0 Z" fill="#62B6FF" stroke="${INK}" stroke-width="3.5" stroke-linejoin="round"/><path d="M-13 -22 L13 -22 M-17 -10 L17 -10" stroke="#fff" stroke-width="5"/><circle cy="-60" r="8" fill="#FFC22E" stroke="${INK}" stroke-width="3"/></g>`,
-  glasses: `<g stroke="${INK}" stroke-width="3" stroke-linejoin="round"><path d="M86 128 C58 112 62 86 86 100 C110 86 114 112 86 128Z" fill="#FF4FA0" fill-opacity=".9"/><path d="M154 128 C126 112 130 86 154 100 C178 86 182 112 154 128Z" fill="#FF4FA0" fill-opacity=".9"/><path d="M106 104 Q120 96 134 104" fill="none"/><path d="M75 100 l6 -4" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M143 100 l6 -4" stroke="#fff" stroke-width="3" stroke-linecap="round"/></g>`
-};
-const TOP_ACC = ['crown', 'flower', 'hat'];
-
-const MIMI_BIG = `<svg viewBox="0 -40 240 330" aria-hidden="true">
-  <ellipse cx="120" cy="284" rx="78" ry="9" fill="#4A23611f"/>
-  <g class="tail"><path d="M168 250 C224 252 238 200 216 166 C206 148 186 152 192 168" fill="none" stroke="${INK}" stroke-width="27" stroke-linecap="round"/>
-    <path d="M168 250 C224 252 238 200 216 166 C206 148 186 152 192 168" fill="none" style="stroke:var(--fur)" stroke-width="19" stroke-linecap="round"/>
-    <path d="M226 210 l-14 -2 M224 188 l-13 4 M214 168 l-10 8" style="stroke:var(--stripe)" stroke-width="6" stroke-linecap="round"/></g>
-  <g class="slot-back"></g>
-  <g id="mBody">
-    <path d="M120 150 C164 150 184 192 182 232 C180 264 158 276 120 276 C82 276 60 264 58 232 C56 192 76 150 120 150 Z" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/>
-    <ellipse cx="120" cy="232" rx="35" ry="37" ${sf(VARF.belly)}/>
-    <g class="slot-outfit"></g>
-    <ellipse cx="93" cy="276" rx="23" ry="12" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="147" cy="276" rx="23" ry="12" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/>
-    <g fill="#FF9CCB"><circle cx="85" cy="274" r="3.2"/><circle cx="93" cy="270" r="3.2"/><circle cx="101" cy="274" r="3.2"/><circle cx="139" cy="274" r="3.2"/><circle cx="147" cy="270" r="3.2"/><circle cx="155" cy="274" r="3.2"/></g>
-    <g class="slot-neck"></g>
-  </g>
-  <g id="mPawL"><g transform="rotate(24 72 214)"><ellipse cx="72" cy="214" rx="15" ry="30" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="72" cy="236" rx="7" ry="5" fill="#FF9CCB"/></g></g>
-  <g id="mPawR"><g transform="rotate(-24 168 214)"><ellipse cx="168" cy="214" rx="15" ry="30" ${sf(VARF.fur)} stroke="${INK}" stroke-width="4"/><ellipse cx="168" cy="236" rx="7" ry="5" fill="#FF9CCB"/><g class="slot-hand"></g></g></g>
-  <g id="mHead">${kittyHead(VARF, true)}
-    <g class="slot-eyes"></g><g class="slot-bow"></g><g class="slot-head"></g>
-  </g>
-</svg>`;
-/* Mimi's wardrobe: every item is drawn on the big Mimi's own coordinates. One item per category. */
-const K = INK;
-const star5 = (x, y, r, fill) => { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; d += (i ? 'L' : 'M') + (x + rr * Math.cos(a)).toFixed(1) + ' ' + (y + rr * Math.sin(a)).toFixed(1); } return `<path d="${d}Z" fill="${fill}" stroke="${K}" stroke-width="2.2" stroke-linejoin="round"/>`; };
-const flower = (x, y, c, r = 6) => `<g transform="translate(${x} ${y})" stroke="${K}" stroke-width="1.8"><circle cy="${-r}" r="${r}" fill="${c}"/><circle cx="${r}" cy="${-r * .2}" r="${r}" fill="${c}"/><circle cx="${r * .6}" cy="${r}" r="${r}" fill="${c}"/><circle cx="${-r * .6}" cy="${r}" r="${r}" fill="${c}"/><circle cx="${-r}" cy="${-r * .2}" r="${r}" fill="${c}"/><circle r="${r * .7}" fill="#FFD84D"/></g>`;
-const emo = (e, x = 176, y = 246, s = 58) => `<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle" dominant-baseline="middle">${e}</text>`;
-const NECKLINE = 'M82 182 Q120 198 158 182';
-
-const WARDROBE = {
-  outfit: { label: 'Ropa', icon: '👗', items: {
-    princesa: { icon: '👗', name: 'Princesa', svg: `<circle cx="82" cy="192" r="13" fill="#FF8CC6" stroke="${K}" stroke-width="3"/><circle cx="158" cy="192" r="13" fill="#FF8CC6" stroke="${K}" stroke-width="3"/>
-      <path d="M80 184 Q120 200 160 184 L166 216 Q120 226 74 216 Z" fill="#FF4FA0" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M74 214 Q120 226 166 214 L190 260 Q154 274 120 272 Q86 274 50 260 Z" fill="#FF9CCB" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M58 258 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0 q8 7 16 0" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-      <path d="M74 215 Q120 228 166 215" fill="none" stroke="#FFC22E" stroke-width="6"/>
-      <g fill="#fff"><circle cx="96" cy="238" r="3"/><circle cx="142" cy="242" r="3"/><circle cx="118" cy="252" r="2.5"/><circle cx="162" cy="234" r="2.5"/><circle cx="80" cy="246" r="2.5"/></g>${star5(120, 200, 7, '#FFE27A')}` },
-    bailarina: { icon: '🩰', name: 'Bailarina', svg: `<path d="M84 182 Q120 198 156 182 L164 228 Q120 238 76 228 Z" fill="#D9C4FF" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M62 222 L46 246 L66 240 L62 258 L82 244 L84 262 L100 246 L108 264 L120 248 L132 264 L140 246 L156 262 L158 244 L178 258 L174 240 L194 246 L178 222 Q120 238 62 222Z" fill="#FFB8E6" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M70 226 L62 240 L78 236 L80 250 L96 238 L104 252 L120 240 L136 252 L144 238 L160 250 L162 236 L178 240 L170 226 Q120 240 70 226Z" fill="#FFD6F1"/>${flower(120, 206, '#FF6F91', 5)}` },
-    heroina: { icon: '🦸', name: 'Superheroína', back: `<path d="M84 178 Q26 238 40 286 L200 286 Q214 238 156 178 Z" fill="#FF5C7A" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>`,
-      svg: `<path d="M82 182 Q120 198 158 182 L168 236 Q120 248 72 236 Z" fill="#5BB8F5" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
-      <path d="M72 232 Q120 246 168 232" fill="none" stroke="#FFC22E" stroke-width="7"/>${star5(120, 212, 15, '#FFC22E')}
-      <circle cx="86" cy="186" r="6" fill="#FFC22E" stroke="${K}" stroke-width="2"/><circle cx="154" cy="186" r="6" fill="#FFC22E" stroke="${K}" stroke-width="2"/>` },
-    hada: { icon: '🧚', name: 'Hada', back: `<g stroke="${K}" stroke-width="3" fill="#BFF3E4" fill-opacity=".9"><ellipse cx="60" cy="182" rx="38" ry="24" transform="rotate(-32 60 182)"/><ellipse cx="180" cy="182" rx="38" ry="24" transform="rotate(32 180 182)"/><ellipse cx="62" cy="228" rx="26" ry="16" transform="rotate(22 62 228)"/><ellipse cx="178" cy="228" rx="26" ry="16" transform="rotate(-22 178 228)"/></g>
-      <g fill="#fff"><circle cx="50" cy="176" r="3"/><circle cx="190" cy="176" r="3"/><circle cx="64" cy="226" r="2.5"/><circle cx="176" cy="226" r="2.5"/></g>`,
-      svg: `<path d="M84 182 Q120 198 156 182 L178 252 L164 246 L158 264 L144 252 L132 268 L120 254 L108 268 L96 252 L82 264 L76 246 L62 252 Z" fill="#6FE0C6" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>
-      <g fill="#fff"><circle cx="100" cy="222" r="3"/><circle cx="138" cy="230" r="3"/><circle cx="120" cy="244" r="2.5"/></g>${flower(120, 200, '#FF9CCB', 5)}` },
-    pijama: { icon: '🌙', name: 'Pijama', svg: `<path d="M80 182 Q120 198 160 182 Q184 210 182 240 Q180 270 120 272 Q60 270 58 240 Q56 210 80 182Z" fill="#9EC9FF" stroke="${K}" stroke-width="3.5"/>
-      ${star5(88, 214, 7, '#FFE27A')}${star5(152, 224, 7, '#FFE27A')}${star5(98, 252, 6, '#FFE27A')}${star5(146, 256, 6, '#FFE27A')}
-      <path d="M150 200 a10 10 0 1 0 8 16 a8 8 0 1 1 -8 -16z" fill="#FFF6C9" stroke="${K}" stroke-width="2"/>
-      <g fill="#fff" stroke="${K}" stroke-width="1.5"><circle cx="120" cy="208" r="3.5"/><circle cx="120" cy="226" r="3.5"/><circle cx="120" cy="244" r="3.5"/></g>` },
-    overol: { icon: '👖', name: 'Overol', svg: `<path d="M98 196 L90 178 M142 196 L150 178" stroke="#4E86D6" stroke-width="8" stroke-linecap="round"/>
-      <path d="M94 194 h52 v34 h-52z" fill="#4E86D6" stroke="${K}" stroke-width="3" stroke-linejoin="round"/>
-      <path d="M62 226 Q120 238 178 226 Q184 264 120 270 Q56 264 62 226Z" fill="#4E86D6" stroke="${K}" stroke-width="3.5"/>
-      <rect x="108" y="204" width="24" height="16" rx="3" fill="#6FA0E8" stroke="${K}" stroke-width="2"/><path d="M114 210 h12" stroke="#FFC22E" stroke-width="2"/>
-      <circle cx="98" cy="198" r="4" fill="#FFC22E" stroke="${K}" stroke-width="1.5"/><circle cx="142" cy="198" r="4" fill="#FFC22E" stroke="${K}" stroke-width="1.5"/>
-      <path d="M120 238 v26" stroke="#6FA0E8" stroke-width="3"/>` },
-    impermeable: { icon: '☔', name: 'Impermeable', svg: `<path d="M78 180 Q120 196 162 180 Q188 216 186 264 Q120 280 54 264 Q52 216 78 180Z" fill="#FFD84D" stroke="${K}" stroke-width="3.5"/>
-      <path d="M120 194 V272" stroke="${K}" stroke-width="2.5"/><path d="M82 182 L104 204 L118 190 M158 182 L136 204 L122 190" fill="#FFE98A" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
-      <g fill="${K}"><circle cx="112" cy="216" r="3"/><circle cx="112" cy="236" r="3"/><circle cx="112" cy="256" r="3"/></g>
-      <path d="M78 236 h20 v14 h-20z M142 236 h20 v14 h-20z" fill="#FFE98A" stroke="${K}" stroke-width="2.2"/>` },
-    sueter: { icon: '🧶', name: 'Suéter', svg: `<path d="M80 182 Q120 196 160 182 Q182 206 180 238 Q120 252 60 238 Q58 206 80 182Z" fill="#FF8CC6" stroke="${K}" stroke-width="3.5"/>
-      <path d="M62 230 Q120 244 178 230" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="4 4"/>
-      <path d="M120 226 C104 214 106 200 120 208 C134 200 136 214 120 226Z" fill="#FF4FA0" stroke="${K}" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M86 198 l4 6 4 -6 M146 198 l4 6 4 -6" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>` }
-  } },
-  head: { label: 'Cabeza', icon: '👑', items: {
-    corona: { icon: '👑', name: 'Corona', svg: ACC.crown },
-    flores: { icon: '🌸', name: 'Flores', svg: ACC.flower },
-    fiesta: { icon: '🥳', name: 'Fiesta', svg: ACC.hat },
-    tiara: { icon: '⭐', name: 'Tiara', svg: `<path d="M62 68 Q120 34 178 68" fill="none" stroke="#FFC22E" stroke-width="7" stroke-linecap="round"/><path d="M62 68 Q120 34 178 68" fill="none" stroke="${K}" stroke-width="1.5" stroke-dasharray="1 9"/>${star5(120, 34, 16, '#FFE27A')}<circle cx="86" cy="52" r="4" fill="#FF6F91" stroke="${K}" stroke-width="1.5"/><circle cx="154" cy="52" r="4" fill="#62B6FF" stroke="${K}" stroke-width="1.5"/>` },
-    mago: { icon: '🧙', name: 'Mago', svg: `<ellipse cx="120" cy="60" rx="74" ry="13" fill="#7C4FE0" stroke="${K}" stroke-width="3.5"/><path d="M76 60 L124 -34 L164 60 Z" fill="#7C4FE0" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>${star5(116, 10, 7, '#FFE27A')}${star5(136, 36, 6, '#FFE27A')}${star5(104, 42, 5, '#FFE27A')}<path d="M80 54 Q122 66 160 54" fill="none" stroke="#FFC22E" stroke-width="5"/>` },
-    conejo: { icon: '🐰', name: 'Orejas de conejo', svg: `<g stroke="${K}" stroke-width="3.5"><ellipse cx="96" cy="2" rx="14" ry="40" fill="#fff" transform="rotate(-14 96 2)"/><ellipse cx="144" cy="2" rx="14" ry="40" fill="#fff" transform="rotate(14 144 2)"/></g><ellipse cx="96" cy="6" rx="6" ry="28" fill="#FFB8DA" transform="rotate(-14 96 6)"/><ellipse cx="144" cy="6" rx="6" ry="28" fill="#FFB8DA" transform="rotate(14 144 6)"/><path d="M70 58 Q120 30 170 58" fill="none" stroke="#FF8CC6" stroke-width="8" stroke-linecap="round"/>` },
-    gorro: { icon: '🧢', name: 'Gorro de lana', svg: `<path d="M56 72 Q58 20 120 18 Q182 20 184 72 Z" fill="#FF6F91" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/><path d="M90 26 V66 M120 20 V66 M150 26 V66" stroke="#FF9CB4" stroke-width="5"/><rect x="50" y="62" width="140" height="17" rx="8.5" fill="#fff" stroke="${K}" stroke-width="3"/><circle cx="120" cy="14" r="13" fill="#fff" stroke="${K}" stroke-width="3"/>` },
-    cuerno: { icon: '🦄', name: 'Cuerno de unicornio', svg: `<path d="M64 66 Q120 40 176 66" fill="none" stroke="#B48CFF" stroke-width="8" stroke-linecap="round"/><path d="M120 -10 L106 44 L134 44 Z" fill="#FFC22E" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M110 30 L130 24 M113 16 L127 11" stroke="${K}" stroke-width="2"/>${flower(90, 52, '#FF9CCB', 5)}${flower(150, 52, '#62B6FF', 5)}` }
-  } },
-  bow: { label: 'Moño', icon: '🎀', items: {
-    rosa: { color: '#FF4FA0', name: 'Rosa' }, lila: { color: '#A77BFF', name: 'Lila' }, menta: { color: '#2FC4A4', name: 'Menta' },
-    sol: { color: '#FFC22E', name: 'Amarillo' }, cielo: { color: '#5BB8F5', name: 'Azul' }, coral: { color: '#FF8A6B', name: 'Coral' }
-  } },
-  eyes: { label: 'Ojos', icon: '🕶️', items: {
-    corazones: { icon: '💗', name: 'Gafas de corazón', svg: ACC.glasses },
-    redondas: { icon: '👓', name: 'Gafas redondas', svg: `<g fill="#ffffff22" stroke="${K}" stroke-width="4.5"><circle cx="86" cy="112" r="25"/><circle cx="154" cy="112" r="25"/></g><path d="M111 108 Q120 102 129 108" fill="none" stroke="${K}" stroke-width="4.5"/>` },
-    estrellas: { icon: '🌟', name: 'Gafas de estrella', svg: `<g opacity=".92">${star5(86, 112, 28, '#FFC22E')}${star5(154, 112, 28, '#FFC22E')}</g><path d="M108 104 Q120 98 132 104" fill="none" stroke="${K}" stroke-width="3.5"/>` },
-    antifaz: { icon: '🎭', name: 'Antifaz', svg: `<path d="M52 100 Q86 82 120 98 Q154 82 188 100 Q190 128 154 130 Q132 128 120 118 Q108 128 86 130 Q50 128 52 100Z M70 112 a16 18 0 1 0 32 0 a16 18 0 1 0 -32 0Z M138 112 a16 18 0 1 0 32 0 a16 18 0 1 0 -32 0Z" fill="#FF5C7A" fill-rule="evenodd" stroke="${K}" stroke-width="3.5" stroke-linejoin="round"/>` },
-    sol: { icon: '🕶️', name: 'Gafas de sol', svg: `<g stroke="${K}" stroke-width="3"><rect x="58" y="96" width="54" height="34" rx="14" fill="#2B1A3D"/><rect x="128" y="96" width="54" height="34" rx="14" fill="#2B1A3D"/></g><path d="M112 106 h16" stroke="${K}" stroke-width="4"/><path d="M68 104 l10 -4 M138 104 l10 -4" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/>` }
-  } },
-  neck: { label: 'Cuello', icon: '🔔', items: {
-    cascabel: { icon: '🔔', name: 'Cascabel', svg: `<path d="M84 172 Q120 192 156 172" fill="none" stroke="#FF4FA0" stroke-width="10" stroke-linecap="round"/><g class="bell"><circle cx="120" cy="188" r="9" fill="#FFC22E" stroke="${K}" stroke-width="2.5"/><path d="M114 188 h12" stroke="${K}" stroke-width="2"/><circle cx="120" cy="193" r="1.8" fill="${K}"/></g>` },
-    perlas: { icon: '⚪', name: 'Perlas', svg: `<g fill="#fff" stroke="${K}" stroke-width="1.6">${[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => { const t = i / 10, x = (1 - t) * (1 - t) * 84 + 2 * (1 - t) * t * 120 + t * t * 156, y = (1 - t) * (1 - t) * 174 + 2 * (1 - t) * t * 196 + t * t * 174; return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.2"/>`; }).join('')}</g><circle cx="120" cy="197" r="7" fill="#FFB8DA" stroke="${K}" stroke-width="2"/>` },
-    bufanda: { icon: '🧣', name: 'Bufanda', svg: `<path d="M140 186 l12 38 l-16 3 l-8 -36z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M80 168 Q120 194 160 168 L162 184 Q120 212 78 184 Z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M96 182 l-2 12 M112 186 l-1 12 M128 186 l1 12 M144 182 l2 12 M140 206 l14 -3" stroke="#fff" stroke-width="4" stroke-linecap="round"/>` },
-    corbatin: { icon: '🦋', name: 'Corbatín', svg: `<path d="M120 186 L98 174 L98 198 Z M120 186 L142 174 L142 198 Z" fill="#7C4FE0" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><circle cx="120" cy="186" r="6" fill="#A77BFF" stroke="${K}" stroke-width="2"/><g fill="#fff"><circle cx="106" cy="182" r="2"/><circle cx="134" cy="190" r="2"/></g>` },
-    hawaiano: { icon: '🌺', name: 'Collar de flores', svg: [[86, 178, '#FF6F91'], [100, 188, '#FFC22E'], [114, 193, '#B48CFF'], [128, 193, '#2FC4A4'], [142, 188, '#FF8A6B'], [156, 178, '#62B6FF']].map(([x, y, c]) => flower(x, y, c, 5.5)).join('') }
-  } },
-  hand: { label: 'En la mano', icon: '🪄', items: {
-    varita: { icon: '🪄', name: 'Varita', svg: `<path d="M168 244 L200 186" stroke="${K}" stroke-width="9" stroke-linecap="round"/><path d="M168 244 L200 186" stroke="#B48CFF" stroke-width="5" stroke-linecap="round"/>${star5(202, 180, 15, '#FFE27A')}<g fill="#FFE27A"><circle cx="222" cy="168" r="3"/><circle cx="214" cy="200" r="2.5"/></g>` },
-    globo: { icon: '🎈', name: 'Globo', svg: `<path d="M168 244 Q188 180 204 124" fill="none" stroke="${K}" stroke-width="2"/><path d="M204 124 C170 100 180 62 204 80 C228 62 238 100 204 124Z" fill="#FF6F91" stroke="${K}" stroke-width="3" stroke-linejoin="round"/><path d="M194 82 q-6 6 -4 14" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>` },
-    paleta: { icon: '🍭', name: 'Paleta', svg: emo('🍭') },
-    girasol: { icon: '🌻', name: 'Girasol', svg: emo('🌻') },
-    osito: { icon: '🧸', name: 'Osito', svg: emo('🧸') },
-    helado: { icon: '🍦', name: 'Helado', svg: emo('🍦') }
-  } }
-};
-FURS.push({ fur: '#D9AE86', fur2: '#C9976B', stripe: '#9A6640', belly: '#FFF3E6', bow: '#FF4FA0', label: 'Chocolate' },
-          { fur: '#D7EEFF', fur2: '#C0E2FF', stripe: '#8CC4F5', belly: '#FFFFFF', bow: '#FF4FA0', label: 'Celeste' });
-const DRESS_TABS = ['outfit', 'head', 'bow', 'eyes', 'neck', 'hand', 'fur'];
-
-
-/* ---------------- sound effects ---------------- */
-let ac;
-function ensureAc(){ try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== 'running') ac.resume(); } catch (e) {} return ac; }
-const hasVoice = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
-const SILENT = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAACAgICA';
-function unlockAudio(){
-  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-  try { ensureAc(); const s = ac.createBufferSource(); s.buffer = ac.createBuffer(1, 1, 22050); s.connect(ac.destination); s.start(0); } catch (e) {}
-  try { const a = new Audio(SILENT); a.volume = .01; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {}
-  try { if (hasVoice) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); pickVoice(); } } catch (e) {}
-}
-document.addEventListener('pointerdown', () => { try { if (ac && ac.state !== 'running') ac.resume(); } catch (e) {} }, true);
-function tone(f, t0, dur, type = 'sine', vol = .14, dest){
-  if (!store.sound) return;
-  try {
-    ensureAc();
-    const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + t0;
-    o.type = type; o.frequency.value = f;
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + .02); g.gain.exponentialRampToValueAtTime(.001, t + dur);
-    o.connect(g); g.connect(dest || ac.destination); o.start(t); o.stop(t + dur + .05);
-  } catch (e) {}
-}
-const sfx = {
-  ok(){ [523, 659, 784, 1047].forEach((f, i) => tone(f, i * .09, .35, 'triangle')); },
-  no(){ tone(330, 0, .25); tone(262, .18, .3); },
-  tap(){ tone(880, 0, .12, 'sine', .08); },
-  flip(){ tone(660, 0, .1, 'triangle', .08); },
-  snap(){ tone(988, 0, .12, 'triangle', .1); tone(1319, .07, .18, 'triangle', .1); },
-  win(){ [523, 659, 784, 659, 784, 1047, 1319].forEach((f, i) => tone(f, i * .12, .4, 'triangle')); },
-  fanfare(){ [392, 523, 659, 784, 659, 784, 1047, 1047, 1319, 1568].forEach((f, i) => tone(f, i * .14, .5, 'triangle', .13)); }
-};
-function meow(){
-  if (!store.sound) return;
-  try {
-    ensureAc(); const t = ac.currentTime, k = .85 + Math.random() * .4;
-    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain();
-    o.type = 'sawtooth';
-    o.frequency.setValueAtTime(520 * k, t); o.frequency.linearRampToValueAtTime(880 * k, t + .18); o.frequency.linearRampToValueAtTime(460 * k, t + .6);
-    f.type = 'bandpass'; f.Q.value = 2.5; f.frequency.setValueAtTime(900, t); f.frequency.linearRampToValueAtTime(1900, t + .2); f.frequency.linearRampToValueAtTime(800, t + .6);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.32, t + .05); g.gain.setValueAtTime(.26, t + .4); g.gain.exponentialRampToValueAtTime(.001, t + .65);
-    o.connect(f); f.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + .7);
-  } catch (e) {}
-}
-
-/* ---------------- voice (recorded clips, browser voice as fallback) ---------------- */
-let esVoice = null;
-function pickVoice(){ try { const v = speechSynthesis.getVoices(); esVoice = v.find(x => /es[-_](CO|MX|US|419)/i.test(x.lang)) || v.find(x => /^es/i.test(x.lang)) || null; } catch (e) {} }
-try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
-const VBUF = {}; let vSrc = null, sayId = 0;
-function b64ToBuf(b){ const s = atob(b), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a.buffer; }
-function decode(ab){ return new Promise((res, rej) => { try { const p = ac.decodeAudioData(ab, res, rej); if (p && p.then) p.then(res, rej); } catch (e) { rej(e); } }); }
-function getClip(k){
-  if (VBUF[k]) return Promise.resolve(VBUF[k]);
-  const b = window.VOICE && window.VOICE[k]; if (!b || !ac) return Promise.resolve(null);
-  return decode(b64ToBuf(b)).then(buf => (VBUF[k] = buf), () => null);
-}
-function preloadVoices(){ if (window.VOICE && ac) Object.keys(window.VOICE).forEach((k, i) => setTimeout(() => getClip(k), 200 + i * 12)); }
-function stopVoice(){
-  try { if (vSrc) { const s = vSrc; vSrc = null; s.stop(); } } catch (e) {}
-  try { if (hasVoice && (speechSynthesis.speaking || speechSynthesis.pending)) speechSynthesis.cancel(); } catch (e) {}
-}
-let lastU = null;
-function robot(t, done){
-  if (!hasVoice) return done();
-  try {
-    if (!esVoice) pickVoice();
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = esVoice ? esVoice.lang : 'es-ES'; if (esVoice) u.voice = esVoice;
-    u.rate = .9; u.pitch = 1.15; u.onend = done; u.onerror = done; lastU = u;
-    setTimeout(() => { try { speechSynthesis.resume(); speechSynthesis.speak(u); } catch (e) { done(); } }, 90);
-    setTimeout(done, 7000);
-  } catch (e) { done(); }
-}
-/* say(key) -> Promise that resolves when the phrase ends (or is interrupted) */
-function say(key, rate = 1){
-  return new Promise(res => {
-    let fin = false; const done = () => { if (!fin) { fin = true; res(); } };
-    if (!store.sound) return done();
-    const id = ++sayId; stopVoice();
-    const txt = (window.VOICE_TEXT && window.VOICE_TEXT[key]) || key;
-    if (!(window.VOICE && window.VOICE[key])) return robot(txt, done);
-    ensureAc();
-    getClip(key).then(buf => {
-      if (id !== sayId) return done();
-      if (!buf) return robot(txt, done);
-      try {
-        const s = ac.createBufferSource(), g = ac.createGain(); g.gain.value = 1.2;
-        s.buffer = buf; s.playbackRate.value = rate; s.connect(g); g.connect(ac.destination); s.onended = done; s.start(0); vSrc = s;
-        setTimeout(done, buf.duration / rate * 1000 + 500);
-      } catch (e) { robot(txt, done); }
-    });
-  });
-}
 
 /* ---------------- home ---------------- */
 function bannerSVG(w){
@@ -737,7 +264,6 @@ function bannerSVG(w){
     <defs><linearGradient id="bsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${W.sky2}"/><stop offset="1" stop-color="${W.sky1}"/></linearGradient></defs>
     <rect width="400" height="230" fill="url(#bsky)"/>
     <circle cx="350" cy="46" r="24" fill="#FFE27A"/><circle cx="350" cy="46" r="34" fill="#FFE27A" opacity=".3"/>
-    ${cloud(0, 40, 1, '')}${cloud(0, 72, .8, 'b')}
     ${land}
     <path d="M0 160 Q100 128 200 150 T400 140 V230 H0Z" fill="${W.hill2}"/>
     <path d="M0 186 Q120 164 230 182 T400 176 V230 H0Z" fill="${W.hill}"/>
@@ -750,7 +276,8 @@ function renderHome(){
   const w = LV(), W = WORLDS[w], n = Math.min(store.stickers[w], 12);
   $('#starsHome').textContent = store.stars;
   $('#soundBtn').textContent = store.sound ? '🔊 Sonido' : '🔇 Silencio';
-  $('#banner').innerHTML = bannerSVG(w) + `<span class="chip">${W.icon} ${W.name}</span>` +
+  const cl = `<svg viewBox="-34 -26 72 42" aria-hidden="true"><g fill="#fff"><ellipse cx="0" cy="0" rx="26" ry="14"/><ellipse cx="18" cy="-8" rx="18" ry="14"/><ellipse cx="-16" cy="-4" rx="14" ry="11"/></g></svg>`;
+  $('#banner').innerHTML = bannerSVG(w) + `<div class="hcloud a">${cl}</div><div class="hcloud b">${cl}</div><span class="chip">${W.icon} ${W.name}</span>` +
     FRIENDS.map((f, i) => `<button class="friend" data-i="${i}" style="left:${[6, 37.5, 69][i]}%" aria-label="${f.name}"><div class="av">${CH[f.id]()}</div><span>${f.name}</span></button>`).join('');
   $('#stkCount').textContent = `${n} de 12`;
   $('#prog').style.width = (n / 12 * 100) + '%';
@@ -787,7 +314,7 @@ const GAMES = {
 $('#doors').innerHTML = Object.entries(GAMES).map(([k, g]) =>
   `<button class="door" data-k="${k}" style="--c:${g.c};--cd:${g.cd}"><span class="dav">${CH[g.host]()}</span><span class="icon">${g.icon}</span><strong>${g.name}</strong><em>${g.skill}</em></button>`).join('') +
   `<button class="door wide" data-k="mimi" style="--c:var(--sky);--cd:var(--sky-d)"><span class="dav">${CH.kitty()}</span><span class="icon">🎤</span><strong>Habla con Mimi</strong><em>Repite, baila y juega</em></button>`;
-$('#doors').addEventListener('click', e => { const d = e.target.closest('.door'); if (!d) return; d.dataset.k === 'mimi' ? openMimi() : startGame(d.dataset.k); });
+$('#doors').addEventListener('click', e => { const d = e.target.closest('.door'); if (!d) return; if (d.dataset.k === 'mimi') { stopVoice(); sfx.tap(); setTimeout(() => location.href = 'mimi.html', 120); } else startGame(d.dataset.k); });
 $('#soundBtn').addEventListener('click', () => {
   store.sound = !store.sound; save(); renderHome();
   if (store.sound) { unlockAudio(); sfx.tap(); say('sound_on'); } else stopVoice();
@@ -812,7 +339,7 @@ function letrasRound(){
     prompt: `¿Con qué letra empieza ${w}?`, key: 'q_' + w,
     body: `<div class="word"><button class="pic" id="pic" aria-label="${w}">${pic}</button><div class="txt"><u id="first">?</u>${lv === 2 ? w.slice(1) : w.slice(1)}</div></div>`,
     options: shuffle([...s]).map(v => ({ html: show(v), correct: v === L })),
-    bind(){ $('#pic').addEventListener('click', () => { sfx.tap(); say('w_' + w); }); },
+    bind(){ prefetchVoice('ok_' + w); $('#pic').addEventListener('click', () => { sfx.tap(); say('w_' + w); }); },
     onRight: async () => { const u = $('#first'); u.textContent = lv === 2 ? w[0].toLowerCase() : w[0]; u.classList.add('got'); await say('ok_' + w); }
   };
 }
@@ -834,7 +361,7 @@ function contarRound(){
   return {
     prompt, key, body,
     options: shuffle([...s]).map(v => ({ html: v, correct: v === n })),
-    bind(){ let k = 0; $('#stage').querySelectorAll('.obj').forEach(b => b.addEventListener('click', () => { if (b.classList.contains('counted')) return; k++; b.classList.add('counted'); b.insertAdjacentHTML('beforeend', `<i>${k}</i>`); sfx.tap(); say('n' + Math.min(k, 10)); })); },
+    bind(){ prefetchVoice('okn' + n); let k = 0; $('#stage').querySelectorAll('.obj').forEach(b => b.addEventListener('click', () => { if (b.classList.contains('counted')) return; k++; b.classList.add('counted'); b.insertAdjacentHTML('beforeend', `<i>${k}</i>`); sfx.tap(); say('n' + Math.min(k, 10)); })); },
     onRight: () => say('okn' + n)
   };
 }
@@ -866,7 +393,7 @@ function sceneSVG(id){
 
 /* ---------------- game engine ---------------- */
 let G = null;
-function show(id){ ['home', 'play', 'mimi'].forEach(s => $('#' + s).hidden = s !== id); window.scrollTo(0, 0); }
+function show(id){ ['home', 'play'].forEach(s => $('#' + s).hidden = s !== id); window.scrollTo(0, 0); }
 function renderDots(){ $('#dots').innerHTML = Array.from({ length: G.total }, (_, i) => i < G.round ? '💗' : '🤍').join(''); $('#starsPlay').textContent = store.stars; }
 function startGame(key){
   const def = GAMES[key], lv = LV();
@@ -912,8 +439,8 @@ function memoryBoard(){
   setPrompt('Encuentra las parejas', 'mem_intro');
   let open = [];
   $('#stage .mem').addEventListener('click', e => {
-    const c = e.target.closest('.card'); if (!c || c.classList.contains('up') || open.length >= 2) return;
-    sfx.flip(); c.classList.add('up'); open.push(c);
+    const c = e.target.closest('.card'); if (!c || c._open || open.length >= 2) return;
+    sfx.flip(); flipCard(c, true); open.push(c);
     if (open.length < 2) return;
     const [a, b] = open;
     if (a.dataset.f === b.dataset.f) {
@@ -923,16 +450,39 @@ function memoryBoard(){
         if (G.round >= G.total) { const tok = G.token; say('mem_done').then(() => { if (G && G.token === tok) finish(); }); }
         else say(pick(PRAISE));
       }, 450);
-    } else setTimeout(() => { a.classList.remove('up'); b.classList.remove('up'); open = []; }, 1000);
+    } else setTimeout(() => { flipCard(a, false); flipCard(b, false); setTimeout(() => { open = []; }, 280); }, 1000);
   });
 }
+/* flat flip: squeeze to zero width, swap face, open again (much lighter than a 3D turn on iPhone) */
+function flipCard(c, up){
+  c._open = up; c.classList.add('flip');
+  setTimeout(() => { c.classList.toggle('up', up); c.classList.remove('flip'); }, 135);
+}
 
-function puzzleRound(){
-  const lv = LV(), [c, r] = [[2, 2], [3, 2], [3, 3]][lv], scene = G.scenes[G.round % 4];
-  const img = 'url("data:image/svg+xml,' + encodeURIComponent(sceneSVG(scene)) + '")';
+let puzUrl = null;
+function freePuzzle(){ if (puzUrl) { URL.revokeObjectURL(puzUrl); puzUrl = null; } }
+function sceneImage(id, w){
+  const svgUrl = 'data:image/svg+xml,' + encodeURIComponent(sceneSVG(id));
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      try {
+        const k = Math.min(2, devicePixelRatio || 1), cv = document.createElement('canvas');
+        cv.width = Math.round(w * k); cv.height = Math.round(w * .75 * k);
+        cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+        cv.toBlob(b => { if (!b) return res(svgUrl); freePuzzle(); puzUrl = URL.createObjectURL(b); cv.width = cv.height = 0; res(puzUrl); }, 'image/png');
+      } catch (e) { res(svgUrl); }
+    };
+    im.onerror = () => res(svgUrl); im.src = svgUrl;
+  });
+}
+async function puzzleRound(){
+  const lv = LV(), [c, r] = [[2, 2], [3, 2], [3, 3]][lv], scene = G.scenes[G.round % 4], tok = G.token;
   G.cur = {}; $('#opts').hidden = true;
   $('#stage').innerHTML = `<div class="puz"><div class="board" id="board"></div><div class="tray" id="tray"></div></div>`;
   const board = $('#board'), tray = $('#tray');
+  const img = 'url("' + await sceneImage(scene, board.clientWidth || 360) + '")';
+  if (!G || G.token !== tok) return;
   board.style.setProperty('--img', img);
   const pieces = [];
   for (let i = 0; i < c * r; i++) {
@@ -955,23 +505,24 @@ function puzzleRound(){
   size(); G.resize = size;
   let placed = 0;
   pieces.forEach(p => {
-    let dx = 0, dy = 0, drag = false;
+    let dx = 0, dy = 0, sx = 0, sy = 0, drag = false;
     p.addEventListener('pointerdown', e => {
       if (p.classList.contains('placed')) return;
       e.preventDefault(); drag = true; try { p.setPointerCapture(e.pointerId); } catch (_) {}
       const { cw, chh } = size(); const rc = p.getBoundingClientRect();
       p.style.width = cw + 'px'; p.style.height = chh + 'px';
       dx = cw / 2; dy = chh / 2;
+      sx = e.clientX; sy = e.clientY;
       p.classList.add('drag'); p.style.left = (e.clientX - dx) + 'px'; p.style.top = (e.clientY - dy) + 'px';
-      sfx.tap();
+      p.style.transform = 'scale(1.06)'; sfx.tap();
     });
-    p.addEventListener('pointermove', e => { if (!drag) return; p.style.left = (e.clientX - dx) + 'px'; p.style.top = (e.clientY - dy) + 'px'; });
+    p.addEventListener('pointermove', e => { if (!drag) return; p.style.transform = `translate3d(${e.clientX - sx}px,${e.clientY - sy}px,0) scale(1.06)`; });
     const drop = e => {
       if (!drag) return; drag = false;
       const br = board.getBoundingClientRect(), cw = br.width / c, chh = br.height / r;
       const col = +p.dataset.col, row = +p.dataset.row;
       const tx = br.left + col * cw + cw / 2, ty = br.top + row * chh + chh / 2;
-      p.classList.remove('drag'); p.style.left = p.style.top = '';
+      p.classList.remove('drag'); p.style.left = p.style.top = ''; p.style.transform = '';
       if (Math.abs(e.clientX - tx) < cw * .55 && Math.abs(e.clientY - ty) < chh * .55) {
         p.classList.add('placed'); p.style.left = (col / c * 100) + '%'; p.style.top = (row / r * 100) + '%';
         board.appendChild(p); size(); sfx.snap(); placed++;
@@ -1032,349 +583,21 @@ function finish(){
 $('#againBtn').addEventListener('click', () => { $('#done').hidden = true; startGame(G.key); });
 $('#homeBtn').addEventListener('click', () => { $('#done').hidden = true; goHome(); });
 $('#nextWorldBtn').addEventListener('click', () => { $('#done').hidden = true; store.world = Math.min(store.unlocked - 1, 2); save(); goHome(); say('world' + store.world); });
-function goHome(){ stopVoice(); if (G) G.token = null; G = null; renderHome(); show('home'); }
-
-/* ---------------- Mimi's room ---------------- */
-let micStream = null, rec = null, musicBus = null, talking = false, eating = false, pets = 0, tickles = 0;
-(function migrateMimi(){
-  const m = store.mimi || {}, a = m.acc || {};
-  const d = { fur: 0, outfit: null, head: null, bow: 'rosa', eyes: null, neck: 'cascabel', hand: null };
-  if (m.acc) { d.head = a.crown ? 'corona' : a.flower ? 'flores' : a.hat ? 'fiesta' : null; d.bow = a.bow ? 'rosa' : null; d.eyes = a.glasses ? 'corazones' : null; }
-  store.mimi = Object.assign(d, m); delete store.mimi.acc;
-  if (!(store.mimi.fur < FURS.length)) store.mimi.fur = 0;
-})();
-let dressTab = 'outfit';
-$('#mimiBig').innerHTML = MIMI_BIG;
-const sayMimi = k => say(k, 1.14);
-const mimiBusy = () => talking || rec || eating;
-
-function applyMimiLook(){
-  const m = $('#mimiBig'), F = FURS[store.mimi.fur] || FURS[0];
-  ['fur', 'fur2', 'stripe', 'belly'].forEach(k => m.style.setProperty('--' + k, F[k]));
-  const it = (cat) => store.mimi[cat] && WARDROBE[cat].items[store.mimi[cat]];
-  const o = it('outfit');
-  m.querySelector('.slot-back').innerHTML = (o && o.back) || '';
-  m.querySelector('.slot-outfit').innerHTML = (o && o.svg) || '';
-  ['head', 'eyes', 'neck', 'hand'].forEach(c => { const x = it(c); m.querySelector('.slot-' + c).innerHTML = x ? x.svg : ''; });
-  const b = it('bow'); m.querySelector('.slot-bow').innerHTML = b ? bowSVG({ bow: b.color }) : '';
-  renderDress();
-}
-function renderDress(){
-  $('#dressTabs').innerHTML = DRESS_TABS.map(t => {
-    const lab = t === 'fur' ? ['🎨', 'Color'] : [WARDROBE[t].icon, WARDROBE[t].label];
-    return `<button class="dtab ${t === dressTab ? 'on' : ''}" data-tab="${t}"><b>${lab[0]}</b>${lab[1]}</button>`;
-  }).join('');
-  let html = '';
-  if (dressTab === 'fur') html = FURS.map((f, i) => `<button class="swatch fur ${store.mimi.fur === i ? 'on' : ''}" data-fur="${i}" aria-label="Gatita ${f.label}" style="--sw:${f.fur};--sw2:${f.stripe}"></button>`).join('');
-  else {
-    const cat = WARDROBE[dressTab], cur = store.mimi[dressTab];
-    html = `<button class="swatch none ${!cur ? 'on' : ''}" data-cat="${dressTab}" data-item="" aria-label="Nada">🚫</button>` +
-      Object.entries(cat.items).map(([k, x]) => x.color
-        ? `<button class="swatch fur ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="Moño ${x.name}" style="--sw:${x.color};--sw2:${x.color}">🎀</button>`
-        : `<button class="swatch ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="${x.name}">${x.icon}</button>`).join('');
-  }
-  $('#dressItems').innerHTML = html;
-}
-function mimiAnim(cls, ms){ const m = $('#mimiBig'); m.classList.remove('jump', 'spin', 'wig', 'pose'); void m.getBoundingClientRect(); m.classList.add(cls); setTimeout(() => m.classList.remove(cls), ms); }
-function mood(cls, ms){ const m = $('#mimiBig'); m.classList.remove('happy', 'wow'); if (cls) m.classList.add(cls); clearTimeout(mood.t); if (ms) mood.t = setTimeout(() => m.classList.remove(cls), ms); }
-function spawnNote(ch, n = 1){ for (let i = 0; i < n; i++) setTimeout(() => { const s = document.createElement('span'); s.textContent = ch; s.style.left = (22 + Math.random() * 56) + '%'; $('#notes').appendChild(s); setTimeout(() => s.remove(), 2500); }, i * 140); }
-function setBubble(t){ const b = $('#mimiSays'); b.textContent = t || ''; b.hidden = !t; }
-
-function purr(){
-  if (!store.sound) return;
-  try {
-    ensureAc(); const t = ac.currentTime;
-    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
-    o.type = 'sawtooth'; o.frequency.value = 55; f.type = 'lowpass'; f.frequency.value = 380;
-    lfo.frequency.value = 24; lg.gain.value = .12; lfo.connect(lg); lg.connect(g.gain);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.16, t + .15); g.gain.setValueAtTime(.16, t + 1.1); g.gain.linearRampToValueAtTime(0, t + 1.4);
-    o.connect(f); f.connect(g); g.connect(ac.destination); o.start(t); lfo.start(t); o.stop(t + 1.5); lfo.stop(t + 1.5);
-  } catch (e) {}
-}
-function giggle(){ [880, 1046, 932, 1175, 1046].forEach((f, i) => tone(f, i * .08, .1, 'triangle', .07)); }
-function bell(){ tone(1568, 0, .5, 'sine', .08); tone(2093, .02, .4, 'sine', .05); }
-
-async function openMimi(){
-  G = null; show('mimi'); applyTheme(); applyMimiLook(); setBubble(''); $('#dress').hidden = true;
-  mood('happy', 1500); mimiAnim('jump', 700); meow();
-  setTimeout(() => sayMimi('mimi_intro'), 500);
-  setMicMode(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder) && !micBlocked);
-}
-let micBlocked = false;
-function setMicMode(live){
-  $('#talkBtn').hidden = !live; $('#talkLabel').hidden = live;
-  $('#roomNote').innerHTML = live
-    ? 'Toca <b>Háblale</b> y di algo. Cuando Valentina termina de hablar, Mimi lo repite con su voz chistosa. La primera vez, el celular pide permiso para usar el micrófono: toca «Permitir». Nada se guarda ni se envía.'
-    : 'Toca <b>Grábate</b> y elige la grabadora de voz del celular. Graba lo que quieras decirle a Mimi y acepta: Mimi lo repite con su voz chistosa. La grabación no se guarda ni se envía.';
-}
-async function initMic(){
-  if (micStream && micStream.active) return true;
-  try {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) return false;
-    try { if (navigator.audioSession) navigator.audioSession.type = 'play-and-record'; } catch (e) {}
-    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
-    return true;
-  } catch (e) { micStream = null; return false; }
-}
-function closeMic(){
-  try { micStream && micStream.getTracks().forEach(t => t.stop()); } catch (e) {} micStream = null;
-  try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-}
-function leaveMimi(){ stopRec(true); stopMusic(); stopTalk(); closeMic(); goHome(); }
-$('#mimiBack').addEventListener('click', leaveMimi);
-
-/* touch zones: head = pet, belly = tickle, tail = spin, bell = ring */
-$('#mimiBig').addEventListener('click', e => {
-  if (mimiBusy()) return;
-  const t = e.target;
-  if (t.closest('.bell')) { bell(); mood('wow', 900); mimiAnim('jump', 700); spawnNote('🔔'); return; }
-  if (t.closest('.tail')) { meow(); mimiAnim('spin', 850); mood('wow', 900); if (rnd(2)) setTimeout(() => sayMimi('mimi_tail'), 400); spawnNote('💫'); return; }
-  if (t.closest('#mHead')) { purr(); mood('happy', 1600); mimiAnim('wig', 900); spawnNote('💗', 3); if (++pets % 2 === 1) setTimeout(() => sayMimi('mimi_pet'), 300); return; }
-  giggle(); mood('happy', 1100); mimiAnim('jump', 700); spawnNote(pick(['✨', '💜', '💗']), 2);
-  if (++tickles % 2 === 1) setTimeout(() => sayMimi(pick(['mimi_tickle1', 'mimi_tickle2'])), 300);
-});
-
-/* food */
-$('#feedBtn').addEventListener('click', () => {
-  if (mimiBusy()) return;
-  eating = true; stopMusic();
-  const food = pick(['🐟', '🍣', '🥛', '🧁']), from = $('#feedBtn').getBoundingClientRect(), to = $('#mimiBig .mouth-open').getBoundingClientRect();
-  const s = document.createElement('span'); s.className = 'fly'; s.textContent = food; s.style.fontSize = '2.6rem';
-  s.style.left = (from.left + from.width / 2 - 20) + 'px'; s.style.top = (from.top - 10) + 'px'; document.body.appendChild(s);
-  mood('wow'); const mouth = $('#mimiBig .mouth-open'); mouth.style.transform = 'scaleY(1)';
-  const dx = to.left + to.width / 2 - from.left - from.width / 2, dy = to.top - from.top + 10;
-  const arrive = () => {
-    s.remove(); mouth.style.transform = ''; $('#mimiBig').classList.add('chomp'); mood('happy');
-    [0, .25, .5, .75].forEach(t => { tone(220, t, .08, 'square', .05); tone(330, t + .05, .06, 'square', .04); });
-    setTimeout(() => sayMimi('mimi_yum'), 700);
-    spawnNote('💗', 3);
-    setTimeout(() => { $('#mimiBig').classList.remove('chomp'); mood('', 0); eating = false; }, 2300);
-  };
-  try { s.animate([{ transform: 'translate(0,0) scale(1)' }, { transform: `translate(${dx / 2}px,${dy - 80}px) scale(1.3) rotate(-20deg)`, offset: .5 }, { transform: `translate(${dx}px,${dy}px) scale(.5)` }], { duration: 900, easing: 'ease-in-out' }).onfinish = arrive; }
-  catch (e) { arrive(); }
-});
-
-/* dress-up */
-$('#dressBtn').addEventListener('click', () => { const d = $('#dress'); d.hidden = !d.hidden; sfx.tap(); if (!d.hidden) d.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); });
-$('#dress').addEventListener('click', e => {
-  const tab = e.target.closest('[data-tab]');
-  if (tab) { dressTab = tab.dataset.tab; sfx.tap(); renderDress(); return; }
-  const it = e.target.closest('[data-item]'), f = e.target.closest('[data-fur]'), rnd_ = e.target.closest('#surpriseBtn');
-  if (!it && !f && !rnd_) return;
-  if (it) store.mimi[it.dataset.cat] = it.dataset.item || null;
-  if (f) store.mimi.fur = +f.dataset.fur;
-  if (rnd_) {
-    const any = c => pick(Object.keys(WARDROBE[c].items));
-    store.mimi.outfit = any('outfit'); store.mimi.head = rnd(4) ? any('head') : null; store.mimi.bow = rnd(3) ? any('bow') : null;
-    store.mimi.eyes = rnd(2) ? any('eyes') : null; store.mimi.neck = rnd(4) ? any('neck') : null; store.mimi.hand = rnd(3) ? any('hand') : null;
-    store.mimi.fur = rnd(FURS.length); spawnNote('🎲');
-  }
-  save(); applyMimiLook(); sfx.ok(); spawnNote('✨', 2);
-  if (!mimiBusy()) { mimiAnim('pose', 900); mood('happy', 1200); if (rnd_ || rnd(2)) sayMimi('mimi_pretty'); }
-});
-
-/* talking: live microphone when the browser allows it, otherwise the phone's own voice recorder (audio only) */
-$('#talkBtn').addEventListener('click', async () => {
-  if (rec) return stopRec();
-  if (talking || eating) return;
-  ensureAc();
-  if (!micStream || !micStream.active) {
-    setBubble('🎤 Toca «Permitir»');
-    const ok = await initMic();
-    setBubble('');
-    if (!ok) { micBlocked = true; setMicMode(false); sayMimi('mimi_again'); return; }
-  }
-  startRec();
-});
-function startRec(){
-  if (!micStream || talking || eating) return;
-  stopVoice(); stopMusic(); ensureAc();
-  let mr; try { mr = new MediaRecorder(micStream); } catch (e) { return; }
-  const src = ac.createMediaStreamSource(micStream), an = ac.createAnalyser(); an.fftSize = 1024; src.connect(an);
-  const data = new Float32Array(an.fftSize), chunks = [];
-  let heard = false, quiet = 0; const t0 = performance.now();
-  mr.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-  mr.onstop = () => {
-    try { src.disconnect(); } catch (e) {}
-    const cancelled = rec && rec.cancel; rec = null; setTalkBtn(false); setBubble(''); $('#mimiBig').classList.remove('listen');
-    closeMic();
-    if (cancelled) return;
-    if (heard) playFunny(new Blob(chunks, { type: mr.mimeType || 'audio/webm' })); else sayMimi('mimi_again');
-  };
-  rec = { mr, cancel: false }; mr.start(); setTalkBtn(true); setBubble('👂 Te escucho…'); $('#mimiBig').classList.add('listen'); mood('wow');
-  (function loop(){
-    if (!rec || rec.mr !== mr || mr.state !== 'recording') return;
-    an.getFloatTimeDomainData(data); let sum = 0; for (let i = 0; i < data.length; i++) sum += data[i] * data[i];
-    const rms = Math.sqrt(sum / data.length), now = performance.now();
-    if (rms > .03) { heard = true; quiet = 0; } else if (heard) { quiet = quiet || now; if (now - quiet > 1000) return stopRec(); }
-    if (now - t0 > 7000 || (!heard && now - t0 > 6000)) return stopRec();
-    requestAnimationFrame(loop);
-  })();
-}
-function stopRec(cancel){
-  if (!rec) return; if (cancel) rec.cancel = true;
-  try { if (rec.mr.state !== 'inactive') rec.mr.stop(); } catch (e) {}
-}
-function setTalkBtn(on){ const b = $('#talkBtn'); b.classList.toggle('rec', on); b.innerHTML = on ? '<b>👂</b>Te escucho' : '<b>🎤</b>Háblale'; }
-$('#talkLabel').addEventListener('click', () => { ensureAc(); stopVoice(); stopMusic(); });
-$('#audioIn').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) playFunny(f); });
-
-let talkStop = null;
-function stopTalk(){ if (talkStop) { const f = talkStop; talkStop = null; f(); } }
-function beginTalk(an, isDone){
-  talking = true; setBubble(''); mood(''); const m = $('#mimiBig'), mouth = m.querySelector('.mouth-open');
-  m.classList.add('talk'); const data = an ? new Float32Array(an.fftSize) : null; let live = true; const t0 = performance.now();
-  (function loop(){
-    if (!live) return;
-    let v;
-    if (an) { an.getFloatTimeDomainData(data); let sum = 0; for (let i = 0; i < data.length; i++) sum += data[i] * data[i]; v = Math.min(1.25, Math.sqrt(sum / data.length) * 9); }
-    else v = .5 + .5 * Math.sin((performance.now() - t0) / 70);
-    mouth.style.transform = `scaleY(${v.toFixed(2)})`;
-    if (isDone && isDone()) return end();
-    requestAnimationFrame(loop);
-  })();
-  const end = () => { if (!live) return; live = false; talking = false; talkStop = null; m.classList.remove('talk'); mouth.style.transform = ''; mood('happy', 1200); spawnNote('💗', 3); };
-  talkStop = end;
-  return end;
-}
-async function playFunny(blob){
-  ensureAc(); stopVoice(); stopMusic(); setBubble('🎧 Escuchando…'); mood('wow');
-  let buf = null;
-  try { buf = await decode(await blob.arrayBuffer()); } catch (e) { buf = null; }
-  if (buf && buf.duration > .2) return playBuffer(buf);
-  playElement(blob);
-}
-/* Mimi's funny voice: trim silence, clean and boost the recording, pitch it up with a cartoon wobble,
-   add a little "miau" first, then normalize so it plays loud without distorting. */
-const FUNNY = { rate: 1.72, wobbleHz: 6.5, wobbleCents: 85 };
-function trimRange(buf){
-  const ch = buf.getChannelData(0), sr = buf.sampleRate; let peak = 0;
-  for (let i = 0; i < ch.length; i++) { const a = Math.abs(ch[i]); if (a > peak) peak = a; }
-  const th = Math.max(.02, peak * .12); let a = 0, b = ch.length - 1;
-  while (a < ch.length && Math.abs(ch[a]) < th) a++;
-  while (b > a && Math.abs(ch[b]) < th) b--;
-  const st = Math.max(0, a / sr - .08), en = Math.min(buf.duration, b / sr + .2);
-  return { st, dur: Math.max(.3, Math.min(en - st, 9)), peak: peak || 1 };
-}
-function meowInto(ctx, dest, t, k){
-  const o = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
-  o.type = 'sawtooth';
-  o.frequency.setValueAtTime(560 * k, t); o.frequency.linearRampToValueAtTime(950 * k, t + .14); o.frequency.linearRampToValueAtTime(520 * k, t + .42);
-  f.type = 'bandpass'; f.Q.value = 2.5; f.frequency.setValueAtTime(1000, t); f.frequency.linearRampToValueAtTime(2000, t + .15); f.frequency.linearRampToValueAtTime(900, t + .42);
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.5, t + .04); g.gain.setValueAtTime(.42, t + .3); g.gain.exponentialRampToValueAtTime(.001, t + .46);
-  o.connect(f); f.connect(g); g.connect(dest); o.start(t); o.stop(t + .5);
-}
-async function renderFunny(buf){
-  const { st, dur, peak } = trimRange(buf), sr = 44100, lead = .5;
-  const len = Math.ceil((lead + dur / FUNNY.rate + .25) * sr);
-  const OC = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-  const oc = new OC(1, len, sr);
-  const s = oc.createBufferSource(); s.buffer = buf; s.playbackRate.value = FUNNY.rate;
-  try { const lfo = oc.createOscillator(), lg = oc.createGain(); lfo.frequency.value = FUNNY.wobbleHz; lg.gain.value = FUNNY.wobbleCents; lfo.connect(lg); lg.connect(s.detune); lfo.start(0); } catch (e) {}
-  const hp = oc.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 160;
-  const pres = oc.createBiquadFilter(); pres.type = 'peaking'; pres.frequency.value = 3200; pres.Q.value = .9; pres.gain.value = 6;
-  const pre = oc.createGain(); pre.gain.value = Math.min(25, .9 / peak);
-  const comp = oc.createDynamicsCompressor(); comp.threshold.value = -26; comp.knee.value = 8; comp.ratio.value = 6; comp.attack.value = .003; comp.release.value = .18;
-  s.connect(hp); hp.connect(pres); pres.connect(pre); pre.connect(comp); comp.connect(oc.destination);
-  meowInto(oc, oc.destination, .02, .95 + Math.random() * .2);
-  s.start(lead, st, dur);
-  const out = await new Promise((res, rej) => { oc.oncomplete = e => res(e.renderedBuffer); const p = oc.startRendering(); if (p && p.then) p.then(res, rej); });
-  const d = out.getChannelData(0); let m = 0; for (let i = 0; i < d.length; i++) { const a = Math.abs(d[i]); if (a > m) m = a; }
-  if (m > 0) { const k = .98 / m; for (let i = 0; i < d.length; i++) d[i] *= k; }
-  return out;
-}
-async function playBuffer(buf){
-  let out = null;
-  try { out = await renderFunny(buf); } catch (e) { out = null; }
-  const s = ac.createBufferSource(), an = ac.createAnalyser(); an.fftSize = 512;
-  if (out) { s.buffer = out; s.connect(an); an.connect(ac.destination); }
-  else {
-    const { st, dur, peak } = trimRange(buf), g = ac.createGain(), comp = ac.createDynamicsCompressor();
-    s.buffer = buf; s.playbackRate.value = FUNNY.rate; g.gain.value = Math.min(25, .9 / peak);
-    s.connect(g); g.connect(comp); comp.connect(an); an.connect(ac.destination);
-    const end = beginTalk(an); s.onended = end; s.start(0, st, dur);
-    talkStop = () => { try { s.stop(); } catch (e) {} end(); };
-    return;
-  }
-  ensureAc();
-  const end = beginTalk(an);
-  s.onended = end; s.start(0);
-  talkStop = () => { try { s.stop(); } catch (e) {} end(); };
-}
-function playElement(blob){
-  const url = URL.createObjectURL(blob), v = document.createElement('audio');
-  v.src = url; v.muted = false; v.volume = 1;
-  v.preservesPitch = false; v.webkitPreservesPitch = false; v.mozPreservesPitch = false;
-  v.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:0;top:0';
-  document.body.appendChild(v);
-  let an = null;
-  try { const src = ac.createMediaElementSource(v), g = ac.createGain(), comp = ac.createDynamicsCompressor(); g.gain.value = 3; an = ac.createAnalyser(); an.fftSize = 512; src.connect(g); g.connect(comp); comp.connect(an); an.connect(ac.destination); } catch (e) { an = null; }
-  const cleanup = () => { try { v.pause(); } catch (e) {} v.remove(); URL.revokeObjectURL(url); $('#playBack').hidden = true; };
-  const go = () => {
-    $('#playBack').hidden = true; v.playbackRate = 1.6;
-    const p = v.play();
-    const started = () => { const end = beginTalk(an, () => v.ended || v.paused || v.currentTime > 9); talkStop = () => { end(); cleanup(); }; v.onended = () => { end(); cleanup(); }; };
-    if (p && p.then) p.then(started, () => { setBubble('▶️ Toca para escuchar'); $('#playBack').hidden = false; $('#playBack').onclick = go; });
-    else started();
-  };
-  v.onerror = () => { cleanup(); setBubble(''); mood(''); sayMimi('mimi_again'); };
-  if (v.readyState >= 1) go(); else v.onloadedmetadata = go;
-}
-
-/* dance party */
-$('#danceBtn').addEventListener('click', () => {
-  if (mimiBusy()) return;
-  if (musicBus) { stopMusic(); return; }
-  ensureAc();
-  $('#mimiBig').classList.add('dance'); $('#room').classList.add('party'); mood('happy');
-  sayMimi('mimi_dance');
-  try { musicBus = ac.createGain(); musicBus.gain.value = 1; musicBus.connect(ac.destination); } catch (e) { musicBus = { disconnect(){} }; }
-  const mel = [523, 659, 784, 659, 880, 784, 659, 523, 587, 698, 880, 698, 988, 880, 784, 659], bass = [131, 131, 175, 196];
-  for (let i = 0; i < 48; i++) {
-    tone(mel[i % 16], .7 + i * .22, .2, 'triangle', .08, musicBus.connect ? musicBus : undefined);
-    if (i % 2 === 0) tone(bass[Math.floor(i / 8) % 4], .7 + i * .22, .18, 'sine', .14, musicBus.connect ? musicBus : undefined);
-    if (i % 4 === 0) tone(2400, .7 + i * .22, .03, 'square', .02, musicBus.connect ? musicBus : undefined);
-  }
-  musicBus._iv = setInterval(() => spawnNote(pick(['🎵', '🎶', '✨', '💖', '⭐'])), 380);
-  musicBus._to = setTimeout(stopMusic, 11400);
-});
-function stopMusic(){
-  $('#mimiBig').classList.remove('dance'); $('#room').classList.remove('party');
-  if (!musicBus) return;
-  clearInterval(musicBus._iv); clearTimeout(musicBus._to);
-  try { musicBus.disconnect(); } catch (e) {}
-  musicBus = null; mood('', 0);
-}
-
-/* ---------------- confetti ---------------- */
-function confetti(count){
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cv = $('#fx'), x = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
-  const cols = ['#FF4FA0', '#A77BFF', '#2FC4A4', '#FFC22E', '#FF8A6B', '#5BB8F5', '#FFFFFF'];
-  const ps = Array.from({ length: count }, () => ({ x: W / 2, y: H * .45, vx: (Math.random() - .5) * 15, vy: -Math.random() * 15 - 4, s: 6 + Math.random() * 8, r: Math.random() * 6, c: pick(cols), h: Math.random() < .3 }));
-  const t0 = performance.now();
-  (function step(t){
-    x.clearRect(0, 0, W, H);
-    ps.forEach(p => {
-      p.vy += .35; p.x += p.vx; p.y += p.vy; p.r += .1; x.fillStyle = p.c;
-      x.save(); x.translate(p.x, p.y); x.rotate(p.r);
-      if (p.h) { x.beginPath(); x.arc(0, 0, p.s / 2, 0, 7); x.fill(); } else x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
-      x.restore();
-    });
-    if (t - t0 < 3200) requestAnimationFrame(step); else x.clearRect(0, 0, W, H);
-  })(t0);
-}
+function goHome(){ freePuzzle(); stopVoice(); if (G) G.token = null; G = null; renderHome(); show('home'); }
 
 /* ---------------- start ---------------- */
 $('#enterBtn').addEventListener('click', () => {
   unlockAudio();
   if (!store.sound) { store.sound = true; save(); renderHome(); }
   $('#start').hidden = true;
-  preloadVoices(); sfx.win();
+  try { sessionStorage.setItem('reinoEntered', '1'); } catch (e) {}
+  sfx.win();
   setTimeout(() => say('welcome'), 300);
 });
+let entered = false; try { entered = sessionStorage.getItem('reinoEntered') === '1'; } catch (e) {}
+if (entered) { $('#start').hidden = true; unlockOnFirstTap(); }
+addEventListener('pageshow', e => { if (e.persisted) { renderHome(); unlockOnFirstTap(); } });
 renderHome();
 </script>
-
 <script>if('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));</script>
 </body></html>
