@@ -8,11 +8,32 @@ const wait = ms => new Promise(r => setTimeout(r, ms));
 
 /* ---------------- saved progress ---------------- */
 let store = { stars: 0, sound: true, world: 0, unlocked: 1, stickers: [0, 0, 0] };
-try {
-  const s = JSON.parse(localStorage.getItem('reinoValentina') || 'null');
-  if (s) { if (typeof s.stickers === 'number') s.stickers = [s.stickers, 0, 0]; store = Object.assign(store, s); }
-} catch (e) {}
-function save(){ try { localStorage.setItem('reinoValentina', JSON.stringify(store)); } catch (e) {} }
+const IS_MIMI_PAGE = /mimi\.html$/.test(location.pathname);
+function readSaved(){
+  try { const s = JSON.parse(localStorage.getItem('reinoValentina') || 'null'); if (s && typeof s.stickers === 'number') s.stickers = [s.stickers, 0, 0]; return s; } catch (e) { return null; }
+}
+/* every full album opens the next world, even if the moment it filled up was interrupted */
+function healWorlds(s){
+  let open = 1; while (open < 3 && (s.stickers[open - 1] || 0) >= 12) open++;
+  s.unlocked = Math.max(s.unlocked || 1, open);
+  if (!(s.world < s.unlocked)) s.world = s.unlocked - 1;
+}
+store = Object.assign(store, readSaved() || {}); healWorlds(store);
+/* progress only grows: merge with what is saved, so one page can never overwrite the other with an older copy */
+function save(){
+  try {
+    const cur = readSaved();
+    if (cur) {
+      store.stickers = [0, 1, 2].map(i => Math.max(store.stickers[i] || 0, (cur.stickers && cur.stickers[i]) || 0));
+      store.unlocked = Math.max(store.unlocked || 1, cur.unlocked || 1);
+      store.stars = Math.max(store.stars || 0, cur.stars || 0);
+      if (!IS_MIMI_PAGE && cur.mimi) store.mimi = cur.mimi;
+    }
+    healWorlds(store);
+    localStorage.setItem('reinoValentina', JSON.stringify(store));
+  } catch (e) {}
+}
+function reloadSaved(){ const s = readSaved(); if (s) { const keepWorld = store.world; store = Object.assign(store, s); store.world = keepWorld; save(); } }
 
 /* ---------------- characters (original designs) ---------------- */
 const CH = {

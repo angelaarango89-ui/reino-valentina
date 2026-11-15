@@ -585,6 +585,7 @@ function stopMusic(){
 setInterval(() => { if (document.hidden || mimiBusy() || $('#mimiBig').classList.contains('sleep')) return; const m = $('#mimiBig'); m.classList.add('wag'); setTimeout(() => m.classList.remove('wag'), 1700); }, 5200);
 $('#wake').addEventListener('click', wakeMimi);
 addEventListener('pagehide', () => { stopRec(true); stopMusic(); closeMic(); });
+addEventListener('pageshow', e => { if (e.persisted) reloadSaved(); });
 applyMimiLook(); setMicMode(!!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.MediaRecorder)); $('#mimiBig').classList.add('sleep'); spawnNote('💤');
 
 if ('serviceWorker' in navigator && location.protocol === 'https:' && /github\.io$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {});
