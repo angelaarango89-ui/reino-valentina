@@ -6,6 +6,9 @@ const pick = a => a[rnd(a.length)];
 const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
+/* fonts load in the background: the game shows right away even with slow or no internet */
+document.querySelectorAll('link[data-fonts]').forEach(l => { const on = () => { l.media = 'all'; }; if (l.sheet) on(); else l.addEventListener('load', on); });
+
 /* ---------------- saved progress ---------------- */
 let store = { stars: 0, sound: true, world: 0, unlocked: 1, stickers: [0, 0, 0] };
 const IS_MIMI_PAGE = /mimi\.html$/.test(location.pathname);
@@ -104,7 +107,7 @@ const KITTY_SMALL = (a = '') => `<svg ${a} viewBox="4 -4 232 190" aria-hidden="t
 
 /* ---------------- sound effects ---------------- */
 let ac;
-function ensureAc(){ try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== 'running') ac.resume(); } catch (e) {} return ac; }
+function ensureAc(){ try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state !== 'running') { const p = ac.resume(); if (p && p.catch) p.catch(() => {}); } } catch (e) {} return ac; }
 const hasVoice = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
 const SILENT = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQQAAACAgICA';
 function unlockAudio(){
@@ -113,7 +116,7 @@ function unlockAudio(){
   try { const a = new Audio(SILENT); a.volume = .01; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {}
   try { if (hasVoice) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); pickVoice(); } } catch (e) {}
 }
-document.addEventListener('pointerdown', () => { try { if (ac && ac.state !== 'running') ac.resume(); } catch (e) {} }, true);
+document.addEventListener('pointerdown', () => { if (ac && ac.state !== 'running') ensureAc(); }, true);
 function tone(f, t0, dur, type = 'sine', vol = .14, dest){
   if (!store.sound) return;
   try {
@@ -211,9 +214,11 @@ setInterval(() => {
 function unlockOnFirstTap(){ const f = () => { unlockAudio(); document.removeEventListener('pointerdown', f, true); }; document.addEventListener('pointerdown', f, true); }
 
 /* ---------------- confetti ---------------- */
+let confettiRun = 0;
 function confetti(count){
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const cv = $('#fx'), x = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const run = ++confettiRun, cv = $('#fx'); cv.style.display = 'block';
+  const x = cv.getContext('2d'), W = cv.width = innerWidth, H = cv.height = innerHeight;
   const cols = ['#FF4FA0', '#A77BFF', '#2FC4A4', '#FFC22E', '#FF8A6B', '#5BB8F5', '#FFFFFF'];
   count = Math.min(count, 160);
   const ps = Array.from({ length: count }, () => ({ x: W / 2, y: H * .45, vx: (Math.random() - .5) * 15, vy: -Math.random() * 15 - 4, s: 6 + Math.random() * 8, r: Math.random() * 6, c: pick(cols), h: Math.random() < .3 }));
@@ -226,7 +231,8 @@ function confetti(count){
       if (p.h) { x.beginPath(); x.arc(0, 0, p.s / 2, 0, 7); x.fill(); } else x.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2);
       x.restore();
     });
-    if (t - t0 < 3200) requestAnimationFrame(step); else x.clearRect(0, 0, W, H);
+    if (run !== confettiRun) return;
+    if (t - t0 < 3200) requestAnimationFrame(step); else { x.clearRect(0, 0, W, H); cv.width = cv.height = 1; cv.style.display = 'none'; }
   })(t0);
 }
 

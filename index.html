@@ -10,7 +10,7 @@
 <title>El Reino de Valentina</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
+<link rel="stylesheet" data-fonts media="print" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="comun.css">
 <style>
 /* Castle and games page. Mimi's room lives in mimi.html so the phone frees its memory when she leaves it. */
@@ -71,10 +71,12 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .reward .mini-crown{width:40px;flex:none}
 :root{--teal:#1FB5C9;--teal-d:#128A9B}
 .trace{width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:12px}
-#trSvg{width:100%;max-height:58vh;touch-action:none;border-radius:20px;box-shadow:0 0 0 4px #fff,0 0 0 8px var(--line);cursor:crosshair}
-#trSvg .trGo{animation:trPulse 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
-#trSvg .trNext{animation:trPulse .9s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
-@keyframes trPulse{50%{transform:scale(1.35)}}
+#trSvg{display:block;width:100%;max-height:58vh;touch-action:none;border-radius:20px;box-shadow:0 0 0 4px #fff,0 0 0 8px var(--line);cursor:crosshair}
+.trBox{position:relative;width:100%}
+.trHalo{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;will-change:transform}
+.trHalo::after{content:"";position:absolute;left:-17px;top:-17px;width:34px;height:34px;border-radius:50%;border:4px solid #A77BFF;opacity:.8;animation:trPulse 1s ease-in-out infinite;will-change:transform,opacity}
+.trHalo.start::after{border-color:#2FC4A4;left:-22px;top:-22px;width:44px;height:44px}
+@keyframes trPulse{50%{transform:scale(1.3);opacity:.35}}
 #trSvg.done #trSil path{stroke:#FFE7A3}
 #trSvg.done{animation:pop .6s;box-shadow:0 0 0 4px #fff,0 0 0 9px var(--sun)}
 .next-world{display:flex;align-items:center;gap:12px;width:100%;margin-top:22px;padding:12px 14px;border-radius:24px;text-align:left;color:var(--ink);
@@ -387,7 +389,7 @@ function contarRound(){
   return {
     prompt, key, body,
     options: shuffle([...s]).map(v => ({ html: v, correct: v === n })),
-    bind(){ prefetchVoice('okn' + n); let k = 0; $('#stage').querySelectorAll('.obj').forEach(b => b.addEventListener('click', () => { if (b.classList.contains('counted')) return; k++; b.classList.add('counted'); b.insertAdjacentHTML('beforeend', `<i>${k}</i>`); sfx.tap(); say('n' + Math.min(k, 10)); })); },
+    bind(){ prefetchVoice('okn' + n); let k = 0; $('#stage .count-wrap').addEventListener('click', e => { const b = e.target.closest('.obj'); if (!b || b.classList.contains('counted')) return; k++; b.classList.add('counted'); b.insertAdjacentHTML('beforeend', `<i>${k}</i>`); sfx.tap(); say('n' + Math.min(k, 10)); }); },
     onRight: () => say('okn' + n)
   };
 }
@@ -466,71 +468,102 @@ function dotsFrom(dense, gap = 11){
 const pathD = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
 const trKey = (ch, ok) => (ok ? 'trok' : 'tr') + (ch === ch.toUpperCase() ? 'U_' : 'L_') + ch.toLowerCase();
 
+/* Drawing is built once per stroke and then only attributes change while the finger moves:
+   no rebuilding of the picture on every touch event, so it stays smooth on phones. */
+const SVGNS = 'http://www.w3.org/2000/svg';
+function mkSvg(tag, attrs, parent){ const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+/* The writing sheet is created once per game and reused for every letter (phones keep old sheets in memory otherwise). */
+let trSheet = null;
+function traceSetup(){
+  if (trSheet) { const st = $('#stage'); st.textContent = ''; st.appendChild(trSheet.el); G.tr = trSheet.T; G.resize = () => trHalo(trSheet.T); return trSheet.T; }
+  $('#stage').innerHTML = `<div class="trace"><div class="trBox">
+    <svg id="trSvg" viewBox="-8 0 116 124">
+      <rect x="-8" y="0" width="116" height="124" rx="8" fill="#FFFDF8"/>
+      <path d="M-8 12H108M-8 110H108" stroke="#9ED0F5" stroke-width="1.2"/><path d="M-8 56H108" stroke="#F7A8CB" stroke-width="1" stroke-dasharray="3 3"/>
+      <g id="trSil" fill="none" stroke="#F4DCEB" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="trInk" fill="none" stroke="#FF4FA0" stroke-linecap="round" stroke-linejoin="round"></g>
+      <g id="trDots"></g><g id="trStart"></g>
+      <circle id="trPen" r="6.5" fill="#FFC22E" stroke="${INK}" stroke-width="2" visibility="hidden"/>
+    </svg><span class="trHalo" id="trHalo" hidden></span></div>
+    <button class="mini" id="trAgain">↺ Empezar la letra otra vez</button></div>`;
+  const T = { svg: $('#trSvg'), sil: $('#trSil'), ink: $('#trInk'), dots: $('#trDots'), start: $('#trStart'), pen: $('#trPen'), halo: $('#trHalo'), down: false, inv: null, S: null };
+  T.svg.addEventListener('pointerdown', e => { e.preventDefault(); T.down = true; const m = T.svg.getScreenCTM(); T.inv = m && m.inverse(); try { T.svg.setPointerCapture(e.pointerId); } catch (_) {} trHandle(T, e); });
+  T.svg.addEventListener('pointermove', e => { if (T.down) trHandle(T, e); });
+  const up = () => { T.down = false; if (T.S && T.S.liveEl) T.S.liveEl.setAttribute('visibility', 'hidden'); T.pen.setAttribute('visibility', 'hidden'); };
+  T.svg.addEventListener('pointerup', up); T.svg.addEventListener('pointercancel', up);
+  $('#trAgain').addEventListener('click', () => { const S = T.S; if (!S || S.finished || !G) return; T.ink.textContent = ''; S.si = 0; S.di = 0; sfx.tap(); trNewStroke(T); say(G.cur.key); });
+  trSheet = { el: $('#stage .trace'), T };
+  G.tr = T; G.resize = () => trHalo(T);
+  return T;
+}
+function trNewStroke(T){
+  const S = T.S, st = S.strokes[S.si];
+  S.cur = mkSvg('path', { 'stroke-width': 11, d: '' }, T.ink);
+  S.liveEl = mkSvg('path', { 'stroke-width': 9, 'stroke-opacity': .55, d: '', visibility: 'hidden' }, T.ink);
+  T.dots.textContent = '';
+  S.dotEls = st.dots.map(p => mkSvg('circle', { cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 2.7, fill: '#C9A8E8' }, T.dots));
+  const [x, y] = st.dots[0], nx = st.dots[1] || [x, y + 1], a = Math.atan2(nx[1] - y, nx[0] - x) * 180 / Math.PI;
+  T.start.innerHTML = `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="9" fill="#2FC4A4" stroke="#fff" stroke-width="2.5"/>
+    <text y="3.6" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="Nunito,sans-serif">${S.si + 1}</text>
+    ${st.dots.length > 1 ? `<path transform="rotate(${a.toFixed(0)}) translate(15 0)" d="M-3 -5 L5 0 L-3 5Z" fill="#2FC4A4"/>` : ''}</g>`;
+  trProgress(T);
+}
+/* the pulsing ring is a plain HTML layer moved on top of the sheet: the phone animates it without redrawing the letter */
+function trHalo(T){
+  const S = T.S, st = S && S.strokes[S.si];
+  if (!st || S.finished) { T.halo.hidden = true; return; }
+  const m = T.svg.getScreenCTM(), box = T.svg.parentNode.getBoundingClientRect(); if (!m) return;
+  const d = st.dots[Math.min(S.di, st.dots.length - 1)], q = new DOMPoint(d[0], d[1]).matrixTransform(m);
+  T.halo.hidden = false; T.halo.classList.toggle('start', S.di === 0);
+  T.halo.style.transform = `translate(${(q.x - box.left).toFixed(1)}px,${(q.y - box.top).toFixed(1)}px)`;
+}
+function trProgress(T){
+  const S = T.S, st = S.strokes[S.si];
+  S.dotEls.forEach((el, i) => { el.setAttribute('visibility', i < S.di ? 'hidden' : 'visible'); el.setAttribute('r', i === S.di ? 4.6 : 2.7); el.setAttribute('fill', i === S.di ? '#A77BFF' : '#C9A8E8'); });
+  S.cur.setAttribute('d', S.di > 1 ? pathD(st.dots.slice(0, S.di)) : '');
+  T.start.setAttribute('visibility', S.di === 0 ? 'visible' : 'hidden');
+  trHalo(T);
+}
+async function trStrokeDone(T){
+  const S = T.S;
+  S.cur.setAttribute('d', pathD(S.strokes[S.si].dense)); S.liveEl.remove();
+  S.si++; S.di = 0;
+  [784, 988, 1175].forEach((f, i) => tone(f, i * .07, .2, 'triangle', .09));
+  if (S.si < S.strokes.length) { trNewStroke(T); if (S.si === 1 || rnd(2)) say('tr_next'); return; }
+  S.finished = true; T.dots.textContent = ''; T.start.textContent = ''; T.pen.setAttribute('visibility', 'hidden'); T.halo.hidden = true;
+  T.svg.classList.add('done'); G.round++; renderDots(); addStar(T.svg); sfx.win();
+  await Promise.race([say(trKey(S.ch, true)), wait(7000)]); await wait(400);
+  if (!G || G.token !== S.tok) return;
+  if (G.round >= G.total) finish(); else traceRound();
+}
+function trHandle(T, e){
+  const S = T.S; if (!S || S.finished || !T.inv || !G || G.token !== S.tok) return;
+  const q = new DOMPoint(e.clientX, e.clientY).matrixTransform(T.inv), x = q.x, y = q.y, st = S.strokes[S.si];
+  T.pen.setAttribute('cx', x.toFixed(1)); T.pen.setAttribute('cy', y.toFixed(1)); T.pen.setAttribute('visibility', 'visible');
+  const before = S.di;
+  for (let j = S.di; j < Math.min(S.di + 3, st.dots.length); j++) {
+    const d = st.dots[j];
+    if (Math.hypot(x - d[0], y - d[1]) < 12) { S.di = j + 1; tone(520 + S.di * 30, 0, .07, 'triangle', .05); break; }
+  }
+  if (S.di >= st.dots.length) return trStrokeDone(T);
+  if (S.di !== before) trProgress(T);
+  if (S.di > 0 && Math.hypot(x - st.dots[S.di - 1][0], y - st.dots[S.di - 1][1]) < 28) {
+    S.liveEl.setAttribute('d', `M${st.dots[S.di - 1][0].toFixed(1)} ${st.dots[S.di - 1][1].toFixed(1)}L${x.toFixed(1)} ${y.toFixed(1)}`); S.liveEl.setAttribute('visibility', 'visible');
+  } else S.liveEl.setAttribute('visibility', 'hidden');
+}
 function traceRound(){
   const ch = G.letters[G.round], low = ch !== ch.toUpperCase(), tok = G.token;
+  const T = (G.tr && G.tr.svg.isConnected) ? G.tr : traceSetup();
   const strokes = TRACE[ch].map(segs => { const dense = strokePts(segs); return { dense, dots: dotsFrom(dense) }; });
   G.cur = { prompt: low ? `Escribe la ${ch} minúscula` : `Escribe la ${ch}`, key: trKey(ch) };
   $('#prompt').textContent = G.cur.prompt; $('#opts').hidden = true;
   prefetchVoice(trKey(ch, true), 'tr_next');
-  $('#stage').innerHTML = `<div class="trace">
-    <svg id="trSvg" viewBox="-8 0 116 124" aria-label="Letra ${ch} para seguir con el dedo">
-      <rect x="-8" y="0" width="116" height="124" rx="8" fill="#FFFDF8"/>
-      <path d="M-8 12H108M-8 110H108" stroke="#9ED0F5" stroke-width="1.2"/><path d="M-8 56H108" stroke="#F7A8CB" stroke-width="1" stroke-dasharray="3 3"/>
-      <g id="trSil">${strokes.map(s => `<path d="${pathD(s.dense)}" fill="none" stroke="#F4DCEB" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</g>
-      <g id="trInk"></g>
-      <g id="trDots"></g>
-      <g id="trStart"></g>
-      <circle id="trPen" r="6.5" fill="#FFC22E" stroke="${INK}" stroke-width="2" style="display:none"/>
-    </svg>
-    <button class="mini" id="trAgain">↺ Empezar la letra otra vez</button></div>`;
-  const svg = $('#trSvg'), ink = $('#trInk'), dotsG = $('#trDots'), startG = $('#trStart'), pen = $('#trPen');
-  let si = 0, di = 0, down = false, live = null, finished = false;
-  const doneD = [];
-  const draw = () => {
-    const st = strokes[si];
-    ink.innerHTML = doneD.map(d => `<path d="${d}" fill="none" stroke="#FF4FA0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>`).join('') +
-      (st && di > 1 ? `<path d="${pathD(st.dots.slice(0, di))}" fill="none" stroke="#FF4FA0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>` : '') +
-      (st && di > 0 && live ? `<path d="M${st.dots[di - 1][0].toFixed(1)} ${st.dots[di - 1][1].toFixed(1)}L${live[0].toFixed(1)} ${live[1].toFixed(1)}" stroke="#FF4FA0" stroke-opacity=".55" stroke-width="9" stroke-linecap="round"/>` : '');
-    if (!st) { dotsG.innerHTML = startG.innerHTML = ''; return; }
-    dotsG.innerHTML = st.dots.map((p, i) => i < di ? '' : `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === di ? 4.6 : 2.7}" fill="${i === di ? '#A77BFF' : '#C9A8E8'}"${i === di && i > 0 ? ' class="trNext"' : ''}/>`).join('');
-    if (di === 0) {
-      const [x, y] = st.dots[0], nx = st.dots[1] || [x, y + 1], a = Math.atan2(nx[1] - y, nx[0] - x) * 180 / Math.PI;
-      startG.innerHTML = `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="9" fill="#2FC4A4" stroke="#fff" stroke-width="2.5" class="trGo"/>
-        <text y="3.6" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="Nunito,sans-serif">${si + 1}</text>
-        ${st.dots.length > 1 ? `<path transform="rotate(${a.toFixed(0)}) translate(15 0)" d="M-3 -5 L5 0 L-3 5Z" fill="#2FC4A4"/>` : ''}</g>`;
-    } else startG.innerHTML = '';
-  };
-  const toSvg = e => { const m = svg.getScreenCTM(); if (!m) return [0, 0]; const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); return [pt.x, pt.y]; };
-  const strokeDone = async () => {
-    doneD.push(pathD(strokes[si].dense)); si++; di = 0; live = null;
-    [784, 988, 1175].forEach((f, i) => tone(f, i * .07, .2, 'triangle', .09));
-    if (si < strokes.length) { draw(); if (si === 1 || rnd(2)) say('tr_next'); return; }
-    finished = true; draw(); pen.style.display = 'none';
-    svg.classList.add('done'); G.round++; renderDots(); addStar(svg); sfx.win();
-    await Promise.race([say(trKey(ch, true)), wait(7000)]); await wait(400);
-    if (!G || G.token !== tok) return;
-    if (G.round >= G.total) finish(); else traceRound();
-  };
-  const handle = e => {
-    if (finished) return;
-    const p = toSvg(e), st = strokes[si];
-    pen.setAttribute('cx', p[0].toFixed(1)); pen.setAttribute('cy', p[1].toFixed(1)); pen.style.display = '';
-    let moved = false;
-    for (let j = di; j < Math.min(di + 3, st.dots.length); j++) {
-      const d = st.dots[j];
-      if (Math.hypot(p[0] - d[0], p[1] - d[1]) < 12) { di = j + 1; moved = true; tone(520 + di * 30, 0, .07, 'triangle', .05); break; }
-    }
-    if (di >= st.dots.length) return strokeDone();
-    live = di > 0 && Math.hypot(p[0] - st.dots[di - 1][0], p[1] - st.dots[di - 1][1]) < 28 ? p : null;
-    draw();
-  };
-  svg.addEventListener('pointerdown', e => { e.preventDefault(); down = true; try { svg.setPointerCapture(e.pointerId); } catch (_) {} handle(e); });
-  svg.addEventListener('pointermove', e => { if (down) handle(e); });
-  const up = () => { down = false; live = null; pen.style.display = 'none'; if (!finished) draw(); };
-  svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
-  $('#trAgain').addEventListener('click', () => { if (finished) return; doneD.length = 0; si = 0; di = 0; live = null; sfx.tap(); draw(); say(G.cur.key); });
-  draw();
-  if (G.round === 0) say('tr_intro').then(() => { if (G && G.token === tok && G.round === 0 && !finished) say(G.cur.key); });
+  T.svg.classList.remove('done'); T.svg.setAttribute('aria-label', `Letra ${ch} para seguir con el dedo`);
+  T.sil.innerHTML = strokes.map(s => `<path d="${pathD(s.dense)}"/>`).join('');
+  T.ink.textContent = ''; T.down = false;
+  T.S = { ch, strokes, tok, si: 0, di: 0, finished: false, dotEls: [], cur: null, liveEl: null };
+  trNewStroke(T); requestAnimationFrame(() => trHalo(T));
+  if (G.round === 0) say('tr_intro').then(() => { if (G && G.token === tok && G.round === 0 && !T.S.finished) say(G.cur.key); });
   else say(G.cur.key);
 }
 
@@ -581,17 +614,19 @@ function memoryBoard(){
   G.cur = {}; $('#opts').hidden = true;
   $('#stage').innerHTML = `<div class="mem ${pairs >= 8 ? 'small' : ''}" style="--cols:${pairs === 10 ? 5 : 4}">${deck.map((f, i) => `<button class="card" data-f="${f}" aria-label="Carta ${i + 1}"><span class="back"></span><span class="face">${f}</span></button>`).join('')}</div>`;
   setPrompt('Encuentra las parejas', 'mem_intro');
-  let open = [];
+  let open = []; const tok = G.token;
   $('#stage .mem').addEventListener('click', e => {
+    if (!G || G.token !== tok) return;
     const c = e.target.closest('.card'); if (!c || c._open || open.length >= 2) return;
     sfx.flip(); flipCard(c, true); open.push(c);
     if (open.length < 2) return;
     const [a, b] = open;
     if (a.dataset.f === b.dataset.f) {
       setTimeout(() => {
+        if (!G || G.token !== tok) return;
         a.classList.add('done'); b.classList.add('done'); open = [];
         G.round++; renderDots(); sfx.ok(); addStar(b);
-        if (G.round >= G.total) { const tok = G.token; say('mem_done').then(() => { if (G && G.token === tok) finish(); }); }
+        if (G.round >= G.total) say('mem_done').then(() => { if (G && G.token === tok) finish(); });
         else say(pick(PRAISE));
       }, 450);
     } else setTimeout(() => { flipCard(a, false); flipCard(b, false); setTimeout(() => { open = []; }, 280); }, 1000);
@@ -620,9 +655,44 @@ function sceneImage(id, w){
     im.onerror = () => res(svgUrl); im.src = svgUrl;
   });
 }
+/* Pieces are created once (12 at most) and reused for every puzzle: phones keep touched pieces in memory otherwise. */
+const pzPool = []; let PZ = null;
+function pzPiece(i){
+  if (pzPool[i]) return pzPool[i];
+  const p = document.createElement('div');
+  let dx = 0, dy = 0, sx = 0, sy = 0, drag = false;
+  p.addEventListener('pointerdown', e => {
+    const Z = PZ; if (!Z || p.classList.contains('placed')) return;
+    e.preventDefault(); drag = true; try { p.setPointerCapture(e.pointerId); } catch (_) {}
+    const { cw, chh } = Z.size();
+    p.style.width = cw + 'px'; p.style.height = chh + 'px';
+    dx = cw / 2; dy = chh / 2; sx = e.clientX; sy = e.clientY;
+    p.classList.add('drag'); p.style.left = (e.clientX - dx) + 'px'; p.style.top = (e.clientY - dy) + 'px';
+    p.style.transform = 'scale(1.06)'; sfx.tap();
+  });
+  p.addEventListener('pointermove', e => { if (!drag) return; p.style.transform = `translate3d(${e.clientX - sx}px,${e.clientY - sy}px,0) scale(1.06)`; });
+  const drop = e => {
+    if (!drag) return; drag = false;
+    p.classList.remove('drag'); p.style.left = p.style.top = ''; p.style.transform = '';
+    const Z = PZ; if (!Z || !G || G.token !== Z.tok) return;
+    const br = Z.board.getBoundingClientRect(), cw = br.width / Z.c, chh = br.height / Z.r;
+    const col = +p.dataset.col, row = +p.dataset.row;
+    const tx = br.left + col * cw + cw / 2, ty = br.top + row * chh + chh / 2;
+    if (Math.abs(e.clientX - tx) < cw * .55 && Math.abs(e.clientY - ty) < chh * .55) {
+      p.classList.add('placed'); p.style.left = (col / Z.c * 100) + '%'; p.style.top = (row / Z.r * 100) + '%';
+      Z.board.appendChild(p); Z.size(); sfx.snap(); Z.placed++;
+      if (Z.placed === Z.c * Z.r) { PZ = null; puzzleDone(Z.scene, Z.board); }
+    } else {
+      Z.size(); p.classList.remove('no'); void p.offsetWidth; p.classList.add('no');
+      if (e.clientY < br.bottom + 10) sfx.no();
+    }
+  };
+  p.addEventListener('pointerup', drop); p.addEventListener('pointercancel', drop);
+  return (pzPool[i] = p);
+}
 async function puzzleRound(){
   const lv = LV(), [c, r] = [[3, 2], [4, 2], [4, 3]][lv], scene = G.scenes[G.round % 4], tok = G.token;
-  G.cur = {}; $('#opts').hidden = true;
+  G.cur = {}; $('#opts').hidden = true; PZ = null;
   $('#stage').innerHTML = `<div class="puz"><div class="board" id="board"></div><div class="tray" id="tray"></div></div>`;
   const board = $('#board'), tray = $('#tray');
   const img = 'url("' + await sceneImage(scene, board.clientWidth || 360) + '")';
@@ -634,7 +704,7 @@ async function puzzleRound(){
     const cell = document.createElement('div'); cell.className = 'cell';
     cell.style.cssText = `left:${col / c * 100}%;top:${row / r * 100}%;width:${100 / c}%;height:${100 / r}%`;
     board.appendChild(cell);
-    const p = document.createElement('div'); p.className = 'piece'; p.dataset.col = col; p.dataset.row = row;
+    const p = pzPiece(i); p.className = 'piece'; p.removeAttribute('style'); p.dataset.col = col; p.dataset.row = row;
     p.style.backgroundImage = img;
     p.style.backgroundSize = `${c * 100}% ${r * 100}%`;
     p.style.backgroundPosition = `${c > 1 ? col / (c - 1) * 100 : 0}% ${r > 1 ? row / (r - 1) * 100 : 0}%`;
@@ -647,37 +717,7 @@ async function puzzleRound(){
     return { cw, chh };
   };
   size(); G.resize = size;
-  let placed = 0;
-  pieces.forEach(p => {
-    let dx = 0, dy = 0, sx = 0, sy = 0, drag = false;
-    p.addEventListener('pointerdown', e => {
-      if (p.classList.contains('placed')) return;
-      e.preventDefault(); drag = true; try { p.setPointerCapture(e.pointerId); } catch (_) {}
-      const { cw, chh } = size(); const rc = p.getBoundingClientRect();
-      p.style.width = cw + 'px'; p.style.height = chh + 'px';
-      dx = cw / 2; dy = chh / 2;
-      sx = e.clientX; sy = e.clientY;
-      p.classList.add('drag'); p.style.left = (e.clientX - dx) + 'px'; p.style.top = (e.clientY - dy) + 'px';
-      p.style.transform = 'scale(1.06)'; sfx.tap();
-    });
-    p.addEventListener('pointermove', e => { if (!drag) return; p.style.transform = `translate3d(${e.clientX - sx}px,${e.clientY - sy}px,0) scale(1.06)`; });
-    const drop = e => {
-      if (!drag) return; drag = false;
-      const br = board.getBoundingClientRect(), cw = br.width / c, chh = br.height / r;
-      const col = +p.dataset.col, row = +p.dataset.row;
-      const tx = br.left + col * cw + cw / 2, ty = br.top + row * chh + chh / 2;
-      p.classList.remove('drag'); p.style.left = p.style.top = ''; p.style.transform = '';
-      if (Math.abs(e.clientX - tx) < cw * .55 && Math.abs(e.clientY - ty) < chh * .55) {
-        p.classList.add('placed'); p.style.left = (col / c * 100) + '%'; p.style.top = (row / r * 100) + '%';
-        board.appendChild(p); size(); sfx.snap(); placed++;
-        if (placed === c * r) puzzleDone(scene, board);
-      } else {
-        size(); p.classList.remove('no'); void p.offsetWidth; p.classList.add('no');
-        if (e.clientY < br.bottom + 10) sfx.no();
-      }
-    };
-    p.addEventListener('pointerup', drop); p.addEventListener('pointercancel', drop);
-  });
+  PZ = { c, r, board, tok, scene, size, placed: 0 };
   setPrompt('Arma el rompecabezas', 'puz_intro');
 }
 async function puzzleDone(scene, board){
@@ -727,7 +767,7 @@ function finish(){
 $('#againBtn').addEventListener('click', () => { $('#done').hidden = true; startGame(G.key); });
 $('#homeBtn').addEventListener('click', () => { $('#done').hidden = true; goHome(); });
 $('#nextWorldBtn').addEventListener('click', () => { $('#done').hidden = true; store.world = Math.min(store.unlocked - 1, 2); save(); goHome(); say('world' + store.world); });
-function goHome(){ freePuzzle(); stopVoice(); if (G) G.token = null; G = null; renderHome(); show('home'); }
+function goHome(){ stopVoice(); PZ = null; if (G) G.token = null; G = null; $('#stage').textContent = ''; $('#opts').textContent = ''; freePuzzle(); renderHome(); show('home'); }
 
 /* ---------------- start ---------------- */
 $('#enterBtn').addEventListener('click', () => {

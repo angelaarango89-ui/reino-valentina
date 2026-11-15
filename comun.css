@@ -61,6 +61,10 @@ button.pill:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
 .btn.gold{background:var(--sun);box-shadow:0 6px 0 var(--sun-d);color:var(--ink)}
 .btn:active{transform:translateY(5px);box-shadow:none}
 .prize .note{font-size:.85rem;font-weight:700;margin:14px 0 0;line-height:1.4}
-#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+#fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60;display:none}
+/* phones: no double-tap zoom or long-press menus while a child taps fast */
+html{touch-action:manipulation;-webkit-text-size-adjust:100%}
+body{-webkit-touch-callout:none}
+button{touch-action:manipulation}
 .fly{position:fixed;z-index:45;font-size:2rem;pointer-events:none}
 @media (prefers-reduced-motion:reduce){ *{animation:none!important;transition:none!important} }

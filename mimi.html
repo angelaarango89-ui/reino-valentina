@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Valentina">
 <link rel="icon" href="icono-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
+<link rel="stylesheet" data-fonts media="print" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="comun.css">
 <style>
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -278,32 +278,40 @@ $('#mimiBig').innerHTML = MIMI_BIG;
 const sayMimi = k => say(k, 1.14);
 const mimiBusy = () => talking || rec || eating;
 
+/* only the parts that changed are redrawn, so tapping clothes quickly stays smooth */
+const slotCache = {};
+function setSlot(name, html){ if (slotCache[name] === html) return; slotCache[name] = html; $('#mimiBig .slot-' + name).innerHTML = html; }
 function applyMimiLook(){
   const m = $('#mimiBig'), F = FURS[store.mimi.fur] || FURS[0];
   ['fur', 'fur2', 'stripe', 'belly'].forEach(k => m.style.setProperty('--' + k, F[k]));
   const it = (cat) => store.mimi[cat] && WARDROBE[cat].items[store.mimi[cat]];
   const o = it('outfit');
-  m.querySelector('.slot-back').innerHTML = (o && o.back) || '';
-  m.querySelector('.slot-outfit').innerHTML = (o && o.svg) || '';
-  ['head', 'eyes', 'neck', 'hand'].forEach(c => { const x = it(c); m.querySelector('.slot-' + c).innerHTML = x ? x.svg : ''; });
-  const b = it('bow'); m.querySelector('.slot-bow').innerHTML = b ? bowSVG({ bow: b.color }) : '';
+  setSlot('back', (o && o.back) || '');
+  setSlot('outfit', (o && o.svg) || '');
+  ['head', 'eyes', 'neck', 'hand'].forEach(c => { const x = it(c); setSlot(c, x ? x.svg : ''); });
+  const b = it('bow'); setSlot('bow', b ? bowSVG({ bow: b.color }) : '');
   renderDress();
 }
+let shownTab = null;
 function renderDress(){
-  $('#dressTabs').innerHTML = DRESS_TABS.map(t => {
-    const lab = t === 'fur' ? ['🎨', 'Color'] : [WARDROBE[t].icon, WARDROBE[t].label];
-    return `<button class="dtab ${t === dressTab ? 'on' : ''}" data-tab="${t}"><b>${lab[0]}</b>${lab[1]}</button>`;
-  }).join('');
-  let html = '';
-  if (dressTab === 'fur') html = FURS.map((f, i) => `<button class="swatch fur ${store.mimi.fur === i ? 'on' : ''}" data-fur="${i}" aria-label="Gatita ${f.label}" style="--sw:${f.fur};--sw2:${f.stripe}"></button>`).join('');
-  else {
-    const cat = WARDROBE[dressTab], cur = store.mimi[dressTab];
-    html = `<button class="swatch none ${!cur ? 'on' : ''}" data-cat="${dressTab}" data-item="" aria-label="Nada">🚫</button>` +
-      Object.entries(cat.items).map(([k, x]) => x.color
-        ? `<button class="swatch fur ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="Moño ${x.name}" style="--sw:${x.color};--sw2:${x.color}">🎀</button>`
-        : `<button class="swatch ${cur === k ? 'on' : ''}" data-cat="${dressTab}" data-item="${k}" aria-label="${x.name}">${x.icon}</button>`).join('');
+  if (shownTab !== dressTab) {
+    shownTab = dressTab;
+    $('#dressTabs').innerHTML = DRESS_TABS.map(t => {
+      const lab = t === 'fur' ? ['🎨', 'Color'] : [WARDROBE[t].icon, WARDROBE[t].label];
+      return `<button class="dtab ${t === dressTab ? 'on' : ''}" data-tab="${t}"><b>${lab[0]}</b>${lab[1]}</button>`;
+    }).join('');
+    let html = '';
+    if (dressTab === 'fur') html = FURS.map((f, i) => `<button class="swatch fur" data-fur="${i}" aria-label="Gatita ${f.label}" style="--sw:${f.fur};--sw2:${f.stripe}"></button>`).join('');
+    else html = `<button class="swatch none" data-cat="${dressTab}" data-item="" aria-label="Nada">🚫</button>` +
+      Object.entries(WARDROBE[dressTab].items).map(([k, x]) => x.color
+        ? `<button class="swatch fur" data-cat="${dressTab}" data-item="${k}" aria-label="Moño ${x.name}" style="--sw:${x.color};--sw2:${x.color}">🎀</button>`
+        : `<button class="swatch" data-cat="${dressTab}" data-item="${k}" aria-label="${x.name}">${x.icon}</button>`).join('');
+    $('#dressItems').innerHTML = html;
   }
-  $('#dressItems').innerHTML = html;
+  $('#dressItems').querySelectorAll('.swatch').forEach(b => {
+    const on = b.dataset.fur != null ? store.mimi.fur === +b.dataset.fur : (store.mimi[b.dataset.cat] || '') === b.dataset.item;
+    b.classList.toggle('on', on);
+  });
 }
 function mimiAnim(cls, ms){ const m = $('#mimiBig'); m.classList.remove('jump', 'spin', 'wig', 'pose'); void m.getBoundingClientRect(); m.classList.add(cls); setTimeout(() => m.classList.remove(cls), ms); }
 function mood(cls, ms){ const m = $('#mimiBig'); m.classList.remove('happy', 'wow'); if (cls) m.classList.add(cls); clearTimeout(mood.t); if (ms) mood.t = setTimeout(() => m.classList.remove(cls), ms); }
