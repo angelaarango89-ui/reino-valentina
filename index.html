@@ -69,6 +69,14 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .slot.got{border:3px solid var(--sun);background:#FFF7DA;animation:pop .5s}
 .reward{display:flex;align-items:center;gap:10px;margin-top:12px;font-weight:800;color:var(--ink-soft);font-size:.95rem}
 .reward .mini-crown{width:40px;flex:none}
+:root{--teal:#1FB5C9;--teal-d:#128A9B}
+.trace{width:100%;max-width:400px;display:flex;flex-direction:column;align-items:center;gap:12px}
+#trSvg{width:100%;max-height:58vh;touch-action:none;border-radius:20px;box-shadow:0 0 0 4px #fff,0 0 0 8px var(--line);cursor:crosshair}
+#trSvg .trGo{animation:trPulse 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+#trSvg .trNext{animation:trPulse .9s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes trPulse{50%{transform:scale(1.35)}}
+#trSvg.done #trSil path{stroke:#FFE7A3}
+#trSvg.done{animation:pop .6s;box-shadow:0 0 0 4px #fff,0 0 0 9px var(--sun)}
 .parents{font-size:.9rem;color:var(--ink-soft);background:#ffffffa6;border-radius:18px;padding:12px 14px;margin-top:26px;line-height:1.5}
 
 /* play */
@@ -118,6 +126,7 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
 .card .back{background:var(--lilac) repeating-linear-gradient(45deg,#ffffff22 0 8px,transparent 8px 16px);box-shadow:0 5px 0 var(--lilac-d)}
 .card .back::after{content:"👑";font-size:1.6rem}
 .card .face{background:#fff;font-size:clamp(2rem,9vw,2.8rem);box-shadow:0 5px 0 var(--line)}
+.mem.small{gap:8px}.mem.small .face{font-size:clamp(1.5rem,7vw,2.3rem)}.mem.small .back::after{font-size:1.2rem}
 .card.done .face{background:#FFF1C4;box-shadow:0 0 0 4px var(--sun)}
 
 /* puzzle */
@@ -164,7 +173,7 @@ h2 small{font-family:var(--body);font-size:.95rem;font-weight:800;color:var(--in
     <h2>Mis mundos <small>Llena el álbum para abrir el siguiente</small></h2>
     <div class="worlds" id="worlds"></div>
 
-    <p class="parents"><b>Para mamá y papá:</b> cada juego terminado da un sticker. Al llenar los 12 stickers del álbum, Valentina gana una corona y se abre un mundo nuevo, con retos un poco más difíciles: más opciones en las letras, sumas sencillas, más cartas en la memoria y rompecabezas de más piezas. Los errores no restan, solo la animan a intentarlo otra vez.</p>
+    <p class="parents"><b>Para mamá y papá:</b> cada juego terminado da un sticker. Al llenar los 12 stickers del álbum, Valentina gana una corona y se abre un mundo nuevo, con retos más difíciles: letras en minúscula, sumas, más cartas en la memoria, rompecabezas de más piezas y nuevas letras para escribir. En «Escribe con Estrella» empieza con las vocales, sigue con consonantes y termina con minúsculas: siempre se arranca en el punto verde y se siguen los puntitos con el dedo. Los errores no restan, solo la animan a intentarlo otra vez.</p>
   </section>
 
   <!-- GAME -->
@@ -309,10 +318,11 @@ const GAMES = {
   letras: { name: 'Letras con Luna', skill: 'Primera letra', icon: '🔤', host: 'princess', c: 'var(--rose)', cd: 'var(--rose-d)' },
   memoria: { name: 'Memoria mágica', skill: 'Memoria', icon: '🃏', host: 'unicorn', c: 'var(--lilac)', cd: 'var(--lilac-d)' },
   puzzle: { name: 'Rompecabezas', skill: 'Formas y espacio', icon: '🧩', host: 'princess', c: 'var(--peach)', cd: 'var(--peach-d)' },
-  contar: { name: 'Cuenta con Estrella', skill: 'Números', icon: '🔢', host: 'unicorn', c: 'var(--mint)', cd: 'var(--mint-d)' }
+  contar: { name: 'Cuenta con Estrella', skill: 'Números', icon: '🔢', host: 'unicorn', c: 'var(--mint)', cd: 'var(--mint-d)' },
+  escribir: { name: 'Escribe con Estrella', skill: 'Aprender a escribir', icon: '✏️', host: 'unicorn', c: 'var(--teal)', cd: 'var(--teal-d)', wide: true }
 };
 $('#doors').innerHTML = Object.entries(GAMES).map(([k, g]) =>
-  `<button class="door" data-k="${k}" style="--c:${g.c};--cd:${g.cd}"><span class="dav">${CH[g.host]()}</span><span class="icon">${g.icon}</span><strong>${g.name}</strong><em>${g.skill}</em></button>`).join('') +
+  `<button class="door${g.wide ? ' wide' : ''}" data-k="${k}" style="--c:${g.c};--cd:${g.cd}"><span class="dav">${CH[g.host]()}</span><span class="icon">${g.icon}</span><strong>${g.name}</strong><em>${g.skill}</em></button>`).join('') +
   `<button class="door wide" data-k="mimi" style="--c:var(--sky);--cd:var(--sky-d)"><span class="dav">${CH.kitty()}</span><span class="icon">🎤</span><strong>Habla con Mimi</strong><em>Repite, baila y juega</em></button>`;
 $('#doors').addEventListener('click', e => { const d = e.target.closest('.door'); if (!d) return; if (d.dataset.k === 'mimi') { stopVoice(); sfx.tap(); setTimeout(() => location.href = 'mimi.html', 120); } else startGame(d.dataset.k); });
 $('#soundBtn').addEventListener('click', () => {
@@ -326,29 +336,32 @@ const WORDS = [['🦋', 'Mariposa'], ['🐱', 'Gato'], ['🌙', 'Luna'], ['🍓'
   ['🍇', 'Uva'], ['⭐', 'Estrella'], ['👑', 'Corona'], ['🌈', 'Arcoíris'], ['☁️', 'Nube'], ['🐢', 'Tortuga'], ['🐄', 'Vaca'], ['🏰', 'Castillo'],
   ['🐰', 'Conejo'], ['🍌', 'Banano'], ['🐸', 'Rana'], ['🎈', 'Globo'], ['🐭', 'Ratón'], ['🦁', 'León'], ['🍰', 'Torta'], ['🐝', 'Abeja']];
 const LETTERS = 'ABCEFGLMNOPRSTUV'.split('');
+const LOOKALIKE = { A: 'OEU', B: 'DPR', C: 'OEG', E: 'CAF', F: 'TEP', G: 'CQO', L: 'TIJ', M: 'NWU', N: 'MUH', O: 'CAU', P: 'BDQ', R: 'PBN', S: 'ZCE', T: 'FLI', U: 'NVO', V: 'UWY' };
 const PRAISE = ['praise1', 'praise2', 'praise3', 'praise4', 'praise5', 'praise6', 'praise7'];
 const RETRY = ['retry1', 'retry2', 'retry3'];
 
 function letrasRound(){
-  const lv = LV(), n = lv === 0 ? 3 : 4;
+  const lv = LV(), n = 4, low = lv >= 1;
   let pool = WORDS.filter(x => x[1] !== G.lastWord); const [pic, w] = pick(pool); G.lastWord = w;
   const L = w[0].normalize('NFD')[0].toUpperCase();
-  const s = new Set([L]); while (s.size < n) s.add(pick(LETTERS));
-  const show = v => lv === 2 ? v.toLowerCase() : `${v}<small>${v.toLowerCase()}</small>`;
+  const s = new Set([L]);
+  if (lv === 2) shuffle((LOOKALIKE[L] || '').split('')).forEach(x => { if (s.size < n) s.add(x); });
+  while (s.size < n) s.add(pick(LETTERS));
+  const show = v => low ? v.toLowerCase() : `${v}<small>${v.toLowerCase()}</small>`;
   return {
     prompt: `¿Con qué letra empieza ${w}?`, key: 'q_' + w,
-    body: `<div class="word"><button class="pic" id="pic" aria-label="${w}">${pic}</button><div class="txt"><u id="first">?</u>${lv === 2 ? w.slice(1) : w.slice(1)}</div></div>`,
+    body: `<div class="word"><button class="pic" id="pic" aria-label="${w}">${pic}</button><div class="txt"><u id="first">?</u>${w.slice(1)}</div></div>`,
     options: shuffle([...s]).map(v => ({ html: show(v), correct: v === L })),
     bind(){ prefetchVoice('ok_' + w); $('#pic').addEventListener('click', () => { sfx.tap(); say('w_' + w); }); },
-    onRight: async () => { const u = $('#first'); u.textContent = lv === 2 ? w[0].toLowerCase() : w[0]; u.classList.add('got'); await say('ok_' + w); }
+    onRight: async () => { const u = $('#first'); u.textContent = low ? w[0].toLowerCase() : w[0]; u.classList.add('got'); await say('ok_' + w); }
   };
 }
 function contarRound(){
   const lv = LV(), [it, name] = pick(COUNT_ITEMS);
   let n, body, key, prompt;
   const objs = k => Array.from({ length: k }, () => `<button class="obj">${it}</button>`).join('');
-  if (lv < 2) {
-    n = 1 + rnd(lv === 0 ? 6 : 10);
+  if (lv === 0) {
+    n = 1 + rnd(10);
     const q = /as$|es$/.test(name) && !/diamantes|moños|ponquecitos/.test(name) ? 'Cuántas' : 'Cuántos';
     prompt = `¿${q} ${name} hay?`; key = 'c_' + name;
     body = `<div class="count-wrap"><div class="count-grid">${objs(n)}</div><p class="tip">Toca cada uno para contar</p></div>`;
@@ -357,7 +370,7 @@ function contarRound(){
     prompt = `${a} + ${b} = ¿Cuántos hay en total?`; key = 'sum';
     body = `<div class="count-wrap"><div class="count-grid group">${objs(a)}</div><span class="plus">+</span><div class="count-grid group">${objs(b)}</div><p class="tip">Toca todos para contar</p></div>`;
   }
-  const s = new Set([n]); while (s.size < 3) { const d = n + pick([-2, -1, 1, 2]); if (d >= 1 && d <= 10) s.add(d); }
+  const nOpt = lv === 2 ? 4 : 3, s = new Set([n]); while (s.size < nOpt) { const d = n + pick([-3, -2, -1, 1, 2, 3]); if (d >= 1 && d <= 10) s.add(d); }
   return {
     prompt, key, body,
     options: shuffle([...s]).map(v => ({ html: v, correct: v === n })),
@@ -391,6 +404,123 @@ function sceneSVG(id){
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="400" height="300">${S[id]}</svg>`;
 }
 
+/* ---------------- Escribe con Estrella: trace each letter with a finger ---------------- */
+/* Strokes on a notebook box: top line y=12, middle line y=56, baseline y=110. Angles in degrees, 0 = right, 90 = down. */
+const TRACE = (() => {
+  const Ln = (x1, y1, x2, y2) => ({ t: 'L', x1, y1, x2, y2 });
+  const Ar = (cx, cy, rx, ry, a0, a1) => ({ t: 'A', cx, cy, rx, ry, a0, a1 });
+  return {
+    A: [[Ln(50, 12, 16, 110)], [Ln(50, 12, 84, 110)], [Ln(29, 74, 71, 74)]],
+    E: [[Ln(28, 12, 28, 110)], [Ln(28, 12, 78, 12)], [Ln(28, 60, 70, 60)], [Ln(28, 110, 78, 110)]],
+    I: [[Ln(50, 12, 50, 110)]],
+    O: [[Ar(50, 61, 36, 49, -90, -450)]],
+    U: [[Ln(22, 12, 22, 72), Ar(50, 72, 28, 38, 180, 0), Ln(78, 72, 78, 12)]],
+    M: [[Ln(16, 110, 16, 12), Ln(16, 12, 50, 72), Ln(50, 72, 84, 12), Ln(84, 12, 84, 110)]],
+    P: [[Ln(28, 12, 28, 110)], [Ln(28, 12, 56, 12), Ar(56, 36, 24, 24, -90, 90), Ln(56, 60, 28, 60)]],
+    S: [[Ar(50, 35, 26, 23, -25, -270), Ar(50, 84, 28, 26, -90, 155)]],
+    L: [[Ln(28, 12, 28, 110), Ln(28, 110, 80, 110)]],
+    T: [[Ln(14, 12, 86, 12)], [Ln(50, 12, 50, 110)]],
+    N: [[Ln(20, 110, 20, 12), Ln(20, 12, 80, 110), Ln(80, 110, 80, 12)]],
+    C: [[Ar(56, 61, 38, 49, -40, -320)]],
+    a: [[Ar(46, 83, 24, 26, -10, -370)], [Ln(72, 56, 72, 110)]],
+    e: [[Ln(24, 82, 74, 82), Ar(49, 82, 25, 27, 0, -320)]],
+    i: [[Ln(50, 56, 50, 110)], [Ln(50, 36, 50, 36)]],
+    o: [[Ar(50, 83, 26, 27, -90, -450)]],
+    u: [[Ln(26, 56, 26, 88), Ar(50, 88, 24, 22, 180, 0), Ln(74, 88, 74, 56)], [Ln(74, 56, 74, 110)]],
+    m: [[Ln(18, 56, 18, 110)], [Ar(34, 72, 16, 16, 180, 360), Ln(50, 72, 50, 110)], [Ar(66, 72, 16, 16, 180, 360), Ln(82, 72, 82, 110)]],
+    n: [[Ln(26, 56, 26, 110)], [Ar(50, 76, 24, 20, 180, 360), Ln(74, 76, 74, 110)]],
+    l: [[Ln(50, 12, 50, 110)]],
+    s: [[Ar(50, 68, 20, 13, -25, -270), Ar(50, 96, 22, 14, -90, 155)]]
+  };
+})();
+const TRACE_SETS = [['A', 'E', 'I', 'O', 'U'], ['M', 'P', 'S', 'L', 'T', 'N', 'C'], ['a', 'e', 'i', 'o', 'u', 'm', 'n', 'l', 's']];
+/* dense points along a stroke, then dots every ~11 units */
+function strokePts(segs){
+  const pts = [];
+  segs.forEach(g => {
+    if (g.t === 'L') { const n = Math.max(1, Math.ceil(Math.hypot(g.x2 - g.x1, g.y2 - g.y1) / 1.5)); for (let i = 0; i <= n; i++) pts.push([g.x1 + (g.x2 - g.x1) * i / n, g.y1 + (g.y2 - g.y1) * i / n]); }
+    else { const n = Math.ceil(Math.abs(g.a1 - g.a0) / 2); for (let i = 0; i <= n; i++) { const a = (g.a0 + (g.a1 - g.a0) * i / n) * Math.PI / 180; pts.push([g.cx + g.rx * Math.cos(a), g.cy + g.ry * Math.sin(a)]); } }
+  });
+  return pts;
+}
+function dotsFrom(dense, gap = 11){
+  const out = [dense[0]]; let acc = 0;
+  for (let i = 1; i < dense.length; i++) { acc += Math.hypot(dense[i][0] - dense[i - 1][0], dense[i][1] - dense[i - 1][1]); if (acc >= gap) { out.push(dense[i]); acc = 0; } }
+  const last = dense[dense.length - 1], prev = out[out.length - 1];
+  if (Math.hypot(last[0] - prev[0], last[1] - prev[1]) > 4) out.push(last); else out[out.length - 1] = last;
+  return out;
+}
+const pathD = pts => pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('');
+const trKey = (ch, ok) => (ok ? 'trok' : 'tr') + (ch === ch.toUpperCase() ? 'U_' : 'L_') + ch.toLowerCase();
+
+function traceRound(){
+  const ch = G.letters[G.round], low = ch !== ch.toUpperCase(), tok = G.token;
+  const strokes = TRACE[ch].map(segs => { const dense = strokePts(segs); return { dense, dots: dotsFrom(dense) }; });
+  G.cur = { prompt: low ? `Escribe la ${ch} minúscula` : `Escribe la ${ch}`, key: trKey(ch) };
+  $('#prompt').textContent = G.cur.prompt; $('#opts').hidden = true;
+  prefetchVoice(trKey(ch, true), 'tr_next');
+  $('#stage').innerHTML = `<div class="trace">
+    <svg id="trSvg" viewBox="-8 0 116 124" aria-label="Letra ${ch} para seguir con el dedo">
+      <rect x="-8" y="0" width="116" height="124" rx="8" fill="#FFFDF8"/>
+      <path d="M-8 12H108M-8 110H108" stroke="#9ED0F5" stroke-width="1.2"/><path d="M-8 56H108" stroke="#F7A8CB" stroke-width="1" stroke-dasharray="3 3"/>
+      <g id="trSil">${strokes.map(s => `<path d="${pathD(s.dense)}" fill="none" stroke="#F4DCEB" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}</g>
+      <g id="trInk"></g>
+      <g id="trDots"></g>
+      <g id="trStart"></g>
+      <circle id="trPen" r="6.5" fill="#FFC22E" stroke="${INK}" stroke-width="2" style="display:none"/>
+    </svg>
+    <button class="mini" id="trAgain">↺ Empezar la letra otra vez</button></div>`;
+  const svg = $('#trSvg'), ink = $('#trInk'), dotsG = $('#trDots'), startG = $('#trStart'), pen = $('#trPen');
+  let si = 0, di = 0, down = false, live = null, finished = false;
+  const doneD = [];
+  const draw = () => {
+    const st = strokes[si];
+    ink.innerHTML = doneD.map(d => `<path d="${d}" fill="none" stroke="#FF4FA0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>`).join('') +
+      (st && di > 1 ? `<path d="${pathD(st.dots.slice(0, di))}" fill="none" stroke="#FF4FA0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>` : '') +
+      (st && di > 0 && live ? `<path d="M${st.dots[di - 1][0].toFixed(1)} ${st.dots[di - 1][1].toFixed(1)}L${live[0].toFixed(1)} ${live[1].toFixed(1)}" stroke="#FF4FA0" stroke-opacity=".55" stroke-width="9" stroke-linecap="round"/>` : '');
+    if (!st) { dotsG.innerHTML = startG.innerHTML = ''; return; }
+    dotsG.innerHTML = st.dots.map((p, i) => i < di ? '' : `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i === di ? 4.6 : 2.7}" fill="${i === di ? '#A77BFF' : '#C9A8E8'}"${i === di && i > 0 ? ' class="trNext"' : ''}/>`).join('');
+    if (di === 0) {
+      const [x, y] = st.dots[0], nx = st.dots[1] || [x, y + 1], a = Math.atan2(nx[1] - y, nx[0] - x) * 180 / Math.PI;
+      startG.innerHTML = `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})"><circle r="9" fill="#2FC4A4" stroke="#fff" stroke-width="2.5" class="trGo"/>
+        <text y="3.6" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="Nunito,sans-serif">${si + 1}</text>
+        ${st.dots.length > 1 ? `<path transform="rotate(${a.toFixed(0)}) translate(15 0)" d="M-3 -5 L5 0 L-3 5Z" fill="#2FC4A4"/>` : ''}</g>`;
+    } else startG.innerHTML = '';
+  };
+  const toSvg = e => { const m = svg.getScreenCTM(); if (!m) return [0, 0]; const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()); return [pt.x, pt.y]; };
+  const strokeDone = async () => {
+    doneD.push(pathD(strokes[si].dense)); si++; di = 0; live = null;
+    [784, 988, 1175].forEach((f, i) => tone(f, i * .07, .2, 'triangle', .09));
+    if (si < strokes.length) { draw(); if (si === 1 || rnd(2)) say('tr_next'); return; }
+    finished = true; draw(); pen.style.display = 'none';
+    svg.classList.add('done'); G.round++; renderDots(); addStar(svg); sfx.win();
+    await Promise.race([say(trKey(ch, true)), wait(7000)]); await wait(400);
+    if (!G || G.token !== tok) return;
+    if (G.round >= G.total) finish(); else traceRound();
+  };
+  const handle = e => {
+    if (finished) return;
+    const p = toSvg(e), st = strokes[si];
+    pen.setAttribute('cx', p[0].toFixed(1)); pen.setAttribute('cy', p[1].toFixed(1)); pen.style.display = '';
+    let moved = false;
+    for (let j = di; j < Math.min(di + 3, st.dots.length); j++) {
+      const d = st.dots[j];
+      if (Math.hypot(p[0] - d[0], p[1] - d[1]) < 12) { di = j + 1; moved = true; tone(520 + di * 30, 0, .07, 'triangle', .05); break; }
+    }
+    if (di >= st.dots.length) return strokeDone();
+    live = di > 0 && Math.hypot(p[0] - st.dots[di - 1][0], p[1] - st.dots[di - 1][1]) < 28 ? p : null;
+    draw();
+  };
+  svg.addEventListener('pointerdown', e => { e.preventDefault(); down = true; try { svg.setPointerCapture(e.pointerId); } catch (_) {} handle(e); });
+  svg.addEventListener('pointermove', e => { if (down) handle(e); });
+  const up = () => { down = false; live = null; pen.style.display = 'none'; if (!finished) draw(); };
+  svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+  $('#trAgain').addEventListener('click', () => { if (finished) return; doneD.length = 0; si = 0; di = 0; live = null; sfx.tap(); draw(); say(G.cur.key); });
+  draw();
+  if (G.round === 0) say('tr_intro').then(() => { if (G && G.token === tok && G.round === 0 && !finished) say(G.cur.key); });
+  else say(G.cur.key);
+}
+
 /* ---------------- game engine ---------------- */
 let G = null;
 function show(id){ ['home', 'play'].forEach(s => $('#' + s).hidden = s !== id); window.scrollTo(0, 0); }
@@ -398,11 +528,12 @@ function renderDots(){ $('#dots').innerHTML = Array.from({ length: G.total }, (_
 function startGame(key){
   const def = GAMES[key], lv = LV();
   G = { key, def, round: 0, locked: false, cur: null, token: {} };
-  G.total = key === 'memoria' ? [3, 4, 6][lv] : key === 'puzzle' ? [3, 2, 2][lv] : 5;
+  G.total = key === 'memoria' ? [4, 8, 10][lv] : key === 'puzzle' ? [2, 2, 2][lv] : 5;
+  if (key === 'escribir') G.letters = shuffle(TRACE_SETS[lv]).slice(0, 5);
   if (key === 'puzzle') G.scenes = shuffle(['castle', 'rainbow', 'garden', 'friends']);
   $('#host').innerHTML = CH[def.host]();
   show('play'); renderDots();
-  if (key === 'memoria') memoryBoard(); else if (key === 'puzzle') puzzleRound(); else nextRound();
+  if (key === 'memoria') memoryBoard(); else if (key === 'puzzle') puzzleRound(); else if (key === 'escribir') traceRound(); else nextRound();
 }
 function setPrompt(text, key){ G.cur = Object.assign(G.cur || {}, { prompt: text, key }); $('#prompt').textContent = text; say(key); }
 function nextRound(){
@@ -435,7 +566,7 @@ function memoryBoard(){
   const pairs = G.total, faces = shuffle(['🦄', '🐱', '👑', '🌈', '🍓', '🦋', '🌙', '💎', '🧁', '🌸']).slice(0, pairs);
   const deck = shuffle([...faces, ...faces]);
   G.cur = {}; $('#opts').hidden = true;
-  $('#stage').innerHTML = `<div class="mem" style="--cols:${pairs === 3 ? 3 : 4}">${deck.map((f, i) => `<button class="card" data-f="${f}" aria-label="Carta ${i + 1}"><span class="back"></span><span class="face">${f}</span></button>`).join('')}</div>`;
+  $('#stage').innerHTML = `<div class="mem ${pairs >= 8 ? 'small' : ''}" style="--cols:${pairs === 10 ? 5 : 4}">${deck.map((f, i) => `<button class="card" data-f="${f}" aria-label="Carta ${i + 1}"><span class="back"></span><span class="face">${f}</span></button>`).join('')}</div>`;
   setPrompt('Encuentra las parejas', 'mem_intro');
   let open = [];
   $('#stage .mem').addEventListener('click', e => {
@@ -477,7 +608,7 @@ function sceneImage(id, w){
   });
 }
 async function puzzleRound(){
-  const lv = LV(), [c, r] = [[2, 2], [3, 2], [3, 3]][lv], scene = G.scenes[G.round % 4], tok = G.token;
+  const lv = LV(), [c, r] = [[3, 2], [4, 2], [4, 3]][lv], scene = G.scenes[G.round % 4], tok = G.token;
   G.cur = {}; $('#opts').hidden = true;
   $('#stage').innerHTML = `<div class="puz"><div class="board" id="board"></div><div class="tray" id="tray"></div></div>`;
   const board = $('#board'), tray = $('#tray');
